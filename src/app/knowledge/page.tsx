@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { setCurrentUrl } from '../../feature/currentUrl/currentUrlSlice';
+import { useSelector } from 'react-redux';
 import KnowledgeList from './list';
 import FaqList from './faq/list/page';
 import AddList from './faq/add/page'
@@ -10,15 +9,17 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 const Knowledge = () => {
-  // const dispatch = useDispatch();
-  // const storeCurrentUrl = useSelector((state: any) => state.currentUrl);
-  const [currentUrl, setCurrentUrl] = useState(() => {
+  // 从store中获取当前url
+  const currentUrl = useSelector((state: any) => state.currentUrl);
+  // 当前页面上的url
+  const [curUrl, setCurUrl] = useState(() => {
     // 初始状态使用当前URL的hash
     return window.location.hash.replace(/^#\/?/, '');
   });
 
   const renderContent = () => {
-    switch (currentUrl) {
+    // 根据当前url渲染不同的组件
+    switch (curUrl) {
       case 'knowledge':
         return <KnowledgeList />;
       case 'knowledge/faq/list':
@@ -30,9 +31,9 @@ const Knowledge = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log('storeCurrentUrl', storeCurrentUrl)
-  // }, [storeCurrentUrl])
+  useEffect(() => {
+    setCurUrl(currentUrl)
+  }, [currentUrl])
 
   return (
     <div className={classNames("knowledge")}>

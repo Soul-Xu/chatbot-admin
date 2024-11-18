@@ -1,7 +1,8 @@
 "use client"
 import React from 'react';
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import { Button, Input, Tooltip } from "antd"
 import Image from "next/image"
 import ImgSearchIcon from "@/public/images/search-icon.png"
@@ -13,6 +14,8 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 const KnowledgeList = () => {
+  const dispatch = useDispatch();
+  const currentUrl = useSelector((state: any) => state.currentUrl);
 
   const cardList = [
     {
@@ -56,6 +59,12 @@ const KnowledgeList = () => {
     );
   };
 
+  const hanldeCardClick = (idx:any) => {
+    if (idx === 0) {
+      dispatch(setCurrentUrl('knowledge/faq/list'))
+    }
+  }
+
   return (
     <div className={classNames("knowledgeList")}>
       <div className={classNames("knowledgeList-header")}>
@@ -79,6 +88,7 @@ const KnowledgeList = () => {
               <Link
                 href={item?.link}
                 key={item?.id}
+                onClick={() => hanldeCardClick(idx)}
               >
                 <section 
                   key={item?.id} 

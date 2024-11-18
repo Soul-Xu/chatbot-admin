@@ -1,7 +1,9 @@
 "use client"
-import React from "react"
+import React, { useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import ImgTemplateIcon from "@/public/images/template-icon.png"
 import ImgBackIcon from "@/public/images/back-icon.png"
 import ImgAddIcon from "@/public/images/add-icon.png"
@@ -78,6 +80,7 @@ const treeData: TreeDataNode[] = [
 ];
 
 const FaqList = () => {
+  const dispatch = useDispatch();
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log('selected', selectedKeys, info);
   };
@@ -152,6 +155,16 @@ const FaqList = () => {
     },
   ]
 
+  // 点击新增知识
+  const handleAddKnowledge = () => {
+    dispatch(setCurrentUrl('knowledge/faq/add'))
+  }
+
+  // 点击返回
+  const hanldeBack = () => {
+    dispatch(setCurrentUrl('knowledge'))
+  }
+
   // 知识子库FAQ列表
   const renderListAction = () => {
     return (
@@ -164,7 +177,7 @@ const FaqList = () => {
         <Button className={classNames("btn-default")}>
           导入知识
         </Button>
-        <Link href="#/knowledge/faq/add">
+        <Link href="#/knowledge/faq/add" onClick={handleAddKnowledge}>
           <Button className={classNames("btn-action")}>
             新增知识
           </Button>
@@ -179,7 +192,7 @@ const FaqList = () => {
       <div className={classNames("faqList-header")}>
         <div className={classNames("faqList-header-left")}>
           <div className={classNames("faqList-header-left-icon")}>
-            <Link href="#/knowledge">
+            <Link href="#/knowledge" onClick={hanldeBack}>
               <Button className={classNames("icon-btn")}>
                 <Image src={ImgBackIcon} alt="back-icon" width={12} height={12} />
               </Button>

@@ -1,81 +1,75 @@
-'use client'
+"use client"
 import React, { useState, useEffect } from 'react';
-import {
-  // 导入需要的图标
-  DashboardOutlined,
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-  SettingOutlined,
-  // 其他需要的组件
-} from '@ant-design/icons';
-import { Layout, Menu, Breadcrumb } from 'antd';
+import Image from 'next/image';
+import { UserOutlined } from '@ant-design/icons';
+import ImgHomeIcon from '@/public/images/home-icon.png'
+import ImgKnowledgeIcon from '@/public/images/knowledge-icon.png'
+import ImgLabelIcon from '@/public/images/label-icon.png'
+import ImgStatisticsIcon from '@/public/images/statistics-icon.png'
+import ImgSettingIcon from '@/public/images/setting-icon.png'
+import ImgHomeActiveIcon from '@/public/images/home-active-icon.png'
+import ImgKnowledgeActiveIcon from '@/public/images/knowledge-active-icon.png'
+import ImgLabelActiveIcon from '@/public/images/label-active-icon.png'
+import ImgStatisticsActiveIcon from '@/public/images/statistics-active-icon.png'
+import ImgSettingActiveIcon from '@/public/images/setting-active-icon.png'
+import { Layout, Menu, Avatar } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
+import ImgSysIcon from '@/public/images/chatbot-admin.png'
 import Dashboard from './dashboard';
-import Users from './users';
-import Sessions from './sessions';
-import Robots from './robots';
-import Knowledge from './knowledge';
+import Knowledge from './knowledge/page';
+import Label from './label';
 import Statistics from './statistics';
 import Settings from './settings';
+import classnames from "classnames/bind";
+import styles from "./index.module.scss";
+const classNames = classnames.bind(styles);
 
 const { Header, Content, Footer, Sider } = Layout;
 
 // 定义菜单项类型
 type MenuItem = Required<MenuProps>['items'][number];
 
-// 根据README.md内容定义菜单项
-const items: MenuItem[] = [
-  { key: 'dashboard', icon: <DashboardOutlined />, label: '首页' },
-  { key: 'users', icon: <UserOutlined />, label: '用户管理' },
-  { key: 'sessions', icon: <LaptopOutlined />, label: '会话管理' },
-  { key: 'robots', icon: <NotificationOutlined />, label: '机器人管理' },
-  { key: 'knowledge', icon: <SettingOutlined />, label: '知识库管理' },
-  { key: 'statistics', icon: <SettingOutlined />, label: '统计分析' },
-  { key: 'settings', icon: <SettingOutlined />, label: '系统设置' },
-  // 可以继续添加其他菜单项
-];
-
 const App: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [currentKey, setCurrentKey] = useState('dashboard')
+  const [currentKey, setCurrentKey] = useState('knowledge')
   const router = useRouter();
   const pathname = usePathname();
 
+  // 根据README.md内容定义菜单项
+  const items: MenuItem[] = [
+    { key: 'dashboard', icon: <Image src={currentKey === 'dashboard' ? ImgHomeActiveIcon : ImgHomeIcon} alt="home-icon" width={20} height={20} />, label: '首页' },
+    { key: 'knowledge', icon: <Image src={currentKey === 'knowledge' ? ImgKnowledgeActiveIcon : ImgKnowledgeIcon} alt="knowledge-icon" width={20} height={20} />, label: '知识集' },
+    { key: 'label', icon: <Image src={currentKey === 'label' ? ImgLabelActiveIcon : ImgLabelIcon} alt="label-icon" width={20} height={20} />, label: '标签库' },
+    { key: 'statistics', icon: <Image src={currentKey === 'statistics' ? ImgStatisticsActiveIcon : ImgStatisticsIcon} alt="statistics-icon" width={20} height={20} />, label: '分析' },
+    { key: 'setting', icon: <Image src={currentKey === 'setting' ? ImgSettingActiveIcon : ImgSettingIcon} alt="setting-icon" width={20} height={20}/>, label: '设置' },
+    // 可以继续添加其他菜单项
+  ];
+
   // 菜单点击事件处理函数
   const handleMenuClick = (e: { key: string }) => {
-    // 确保只在客户端执行
-    if (typeof window !== 'undefined') {
-      setCurrentKey(e.key); // 更新状态
-      router.push(`/#/${e.key}`);
-    }
+    setCurrentKey(e.key); // 更新状态
+    router.push(`/#/${e.key}`);
   };
 
   // 使用 useEffect 监听路由变化
   useEffect(() => {
     const hash = pathname.split('#/')[1];
-    setCurrentKey(hash || 'dashboard'); // 当路由变化时更新状态
+    hash && setCurrentKey(hash); // 当路由变化时更新状态
   }, [pathname]);
 
   // 根据路由渲染不同组件
   const renderContent = () => {
     if (typeof window === 'undefined') return null; // 如果是服务器端渲染，则不渲染内容
-
     switch (currentKey) {
       case 'dashboard':
         return <Dashboard />;
-      case 'users':
-        return <Users />;
-      case 'sessions':
-        return <Sessions />;
-      case 'robots':
-        return <Robots />;
       case 'knowledge':
         return <Knowledge />;
+      case 'label':
+        return <Label />;
       case 'statistics':
         return <Statistics />;
-      case 'settings':
+      case 'setting':
         return <Settings />;
       default:
         return <Dashboard />;
@@ -83,19 +77,24 @@ const App: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-      <Sider collapsible collapsed={collapsed} theme='light' onCollapse={(value) => setCollapsed(value)}>
-        <div className="logo" />
-        <Menu theme="light" defaultSelectedKeys={['dashboard']} mode="inline" items={items} onClick={handleMenuClick} />
-      </Sider>
-      <Layout className="site-layout">
-        <Content>
-          <div className="site-layout-background" style={{ padding: 16, minHeight: 360 }}>
-            {/* 根据路由渲染不同组件 */}
-            {renderContent()}
-          </div>
-        </Content>
-        <Footer style={{ textAlign: 'center' }}>AI Chat App ©2024 Created by Your Company</Footer>
+    <Layout className={classNames("layout")}>
+      <Header className={classNames("header")}>
+        <div className={classNames("header-title")}>
+          <Image src={ImgSysIcon} alt="logo" width={157} height={19} />
+        </div>
+        <div className={classNames("header-avatar")}>
+          <Avatar size={30} icon={<UserOutlined />} />
+        </div>
+      </Header>
+      <Layout>
+        <Sider className={classNames("sider")} theme='light' width={64}>
+          <Menu className={classNames("sider-menu")} theme="light" defaultSelectedKeys={[currentKey]} mode="vertical" items={items} onClick={handleMenuClick} />
+        </Sider>
+        <Layout>
+          <Content className={classNames("content")}>
+           {renderContent()}
+          </Content>
+        </Layout>
       </Layout>
     </Layout>
   );

@@ -35,6 +35,10 @@ body {
 }
 
 /* 你可能还需要覆盖一些特定的类来确保颜色应用 */
+.ant-btn {
+  padding: 0;
+}
+
 .ant-btn-primary {
   background-color: rgb(var(--primary-color-rgb));
   border-color: rgb(var(--primary-color-rgb));
@@ -43,4 +47,59 @@ body {
 .ant-btn-primary:hover {
   background-color: lighten(rgb(var(--primary-color-rgb)), 10%);
   border-color: lighten(rgb(var(--primary-color-rgb)), 10%);
+}
+
+.ant-tabs .ant-tabs-tab  {
+  width: 56px !important;
+  height: 22px !important;
+  font-family: MicrosoftYaHei !important;
+  font-size: 14px !important;
+  color: #687181 !important;
+  line-height: 22px !important;
+  text-align: left !important;
+  font-style: normal !important;
+  margin-bottom: 8px;
+}
+
+.ant-tabs .ant-tabs-tab-active {
+  width: 64px !important;
+  height: 24px !important;
+  font-family: MicrosoftYaHei, MicrosoftYaHei !important;
+  font-weight: bold !important;
+  font-size: 16px !important;
+  color: #202D40 !important;
+  line-height: 24px !important;
+  text-align: left !important;
+  font-style: normal !important;
+}
+
+.ant-tabs .ant-tabs-tab.ant-tabs-tab .ant-tabs-tab-btn {
+  font-size: 14px !important;
+  color: #687181 !important;
+}
+
+.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  font-size: 16px !important;
+  color: #202D40 !important;
+}
+
+.ant-tooltip-inner {
+  width: 300px;
+  text-wrap: break-word;
+}
+
+.ant-modal {
+  padding-bottom: 0 !important;
+}
+
+.ant-modal-content {
+  padding: 0 !important;
+}
+
+.ant-form-item {
+  margin-bottom: 24px !important;
+}
+
+.ant-form-item:last-child {
+  margin-bottom: 0 !important;
 }

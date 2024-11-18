@@ -1,0 +1,112 @@
+.classify {
+  &-search {
+    height: 64px;
+    padding: 16px 24px;
+    background: rgba(252,252,252,0.98);
+    box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(0,0,0,0.08);
+  
+    &-input {
+      width: 280px;
+      height: 32px;
+      background: #FFFFFF;
+      border-radius: 2px;
+      border: 1px solid #D9D9D9;
+    }
+  }
+
+  &-content {
+    padding: 24px;
+  }
+}
+
+.add-classify {
+  background: #FFFFFF;
+  box-shadow: 0px 0px 0px 0px rgba(19,22,26,0.25);
+  box-sizing: border-box;
+
+  &-title {
+    height: 64px;
+    border-bottom: 1px solid #e1e1e1;
+    padding: 20px 24px;
+    box-sizing: border-box;
+
+    span {
+      width: 64px;
+      height: 24px;
+      font-family: MicrosoftYaHei, MicrosoftYaHei;
+      font-weight: bold;
+      font-size: 16px;
+      color: #202D40;
+      line-height: 24px;
+      text-align: left;
+      font-style: normal;
+    }
+  }
+
+  &-content {
+    padding: 10px 24px;
+    box-sizing: border-box;
+
+    .form-item-label {
+      height: 22px;
+      font-family: MicrosoftYaHei;
+      font-size: 14px;
+      color: #E34D59;
+      line-height: 22px;
+      text-align: left;
+      font-style: normal;
+    }
+
+    .form-item-input {
+      height: 32px;
+      background: #FFFFFF;
+      border-radius: 3px;
+      border: 1px solid #D9D9D9;
+    }
+  }
+
+  &-footer {
+    margin-top: 48px;
+    height: 64px;
+    padding: 16px 24px;
+    text-align: right;
+    box-sizing: border-box;
+
+    .footer-cancel {
+      margin-right: 24px;
+      width: 80px;
+      height: 32px;
+      border-radius: 3px;
+      border: 1px solid #DCDEE1;
+
+      span {
+        width: 28px;
+        height: 22px;
+        font-family: MicrosoftYaHei;
+        font-size: 14px;
+        color: #687181;
+        line-height: 22px;
+        text-align: center;
+        font-style: normal;
+      }
+    }
+
+    .footer-ok {
+      width: 80px;
+      height: 32px;
+      background: #202D40;
+      border-radius: 3px;
+
+      span {
+        width: 28px;
+        height: 22px;
+        font-family: MicrosoftYaHei;
+        font-size: 14px;
+        color: #FFFFFF;
+        line-height: 22px;
+        text-align: center;
+        font-style: normal;
+      }
+    }
+  }
+}

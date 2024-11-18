@@ -1,0 +1,94 @@
+.addFaq {
+  &-header {
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    background: #FFFFFF;
+    box-shadow: inset 0px -1px 0px 0px #DADFE6;
+
+    &-left {
+      display: flex;
+      align-items: center;
+
+      &-icon {
+        .icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          background: #FFFFFF;
+          border-radius: 50%;
+          box-shadow: 0px 0px 6px 0px rgba(22,26,34,0.17); 
+        }
+      }
+
+      &-title {
+        margin-left: 16px;
+        margin-right: 24px;
+        height: 44px;
+        font-family: MicrosoftYaHei, MicrosoftYaHei;
+        font-weight: bold;
+        font-size: 24px;
+        color: #202D40;
+        line-height: 44px;
+        text-align: left;
+        font-style: normal;
+      }
+
+      &-creator {
+        margin-right: 24px;
+        display: flex;
+        align-items: center;
+
+        span:first-child {
+          margin-right: 16px;
+          height: 20px;
+          font-family: MicrosoftYaHei;
+          font-size: 14px;
+          color: #687181;
+          line-height: 20px;
+          text-align: right;
+          font-style: normal;
+        }
+        span:last-child {
+          height: 20px;
+          font-family: MicrosoftYaHei;
+          font-size: 14px;
+          color: #202D40;
+          line-height: 20px;
+          text-align: left;
+          font-style: normal;
+        }
+      }
+
+      &-createTime {
+        span:first-child {
+          margin-right: 16px;
+          height: 20px;
+          font-family: MicrosoftYaHei;
+          font-size: 14px;
+          color: #687181;
+          line-height: 20px;
+          text-align: right;
+          font-style: normal;
+        }
+        span:last-child {
+          height: 20px;
+          font-family: MicrosoftYaHei;
+          font-size: 14px;
+          color: #202D40;
+          line-height: 20px;
+          text-align: left;
+          font-style: normal;
+        }
+      }
+    }
+  }
+
+  &-content {
+    padding: 16px 24px;
+  }
+}

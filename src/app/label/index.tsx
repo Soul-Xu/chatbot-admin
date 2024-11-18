@@ -33,7 +33,6 @@ const Label = () => {
   };
 
   const onShowAddModal = () => {
-    console.log('currentkey', currentkey)
     if (currentkey === 'classify') {
       setShowAddClassifyModal(true)
     } else {

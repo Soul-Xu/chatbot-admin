@@ -1,8 +1,10 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import KnowledgeList from './list';
 import FaqList from './faq/list/page';
+import FaqView from './faq/view/page';
+import FaqEdit from './faq/edit/page';
 import AddList from './faq/add/page'
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
@@ -17,23 +19,31 @@ const Knowledge = () => {
     return window.location.hash.replace(/^#\/?/, '');
   });
 
-  const renderContent = () => {
-    // 根据当前url渲染不同的组件
-    switch (curUrl) {
-      case 'knowledge':
-        return <KnowledgeList />;
-      case 'knowledge/faq/list':
-        return <FaqList />
-      case 'knowledge/faq/add':
-        return <AddList />
-      default:
-        return <KnowledgeList />; // 或者返回默认的组件或者内容
+  const renderContent = useCallback(() => {
+    if (curUrl === '') {
+      return <KnowledgeList />
+    } else if (curUrl === 'knowledge') {
+      return <KnowledgeList />;
+    } else if (curUrl === 'knowledge/faq/list') {
+      return <FaqList />;
+    } else if (curUrl === 'knowledge/faq/add') {
+      return <AddList />;
+    } else if (curUrl.includes('knowledge/faq/view')) {
+      return <FaqView />;
+    } else if (curUrl.includes('knowledge/faq/edit')) {
+      return <FaqEdit />;
     }
-  };
+  }, [curUrl]); // 依赖项是 curUrl
 
   useEffect(() => {
-    setCurUrl(currentUrl)
+    currentUrl && setCurUrl(currentUrl)
   }, [currentUrl])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.document.title = "AI管理后台";
+    }
+  }, [curUrl])
 
   return (
     <div className={classNames("knowledge")}>

@@ -59,7 +59,7 @@ const KnowledgeList = () => {
     );
   };
 
-  const hanldeCardClick = (idx:any) => {
+  const handleCardClick = (idx:any) => {
     if (idx === 0) {
       dispatch(setCurrentUrl('knowledge/faq/list'))
     }
@@ -88,7 +88,7 @@ const KnowledgeList = () => {
               <Link
                 href={item?.link}
                 key={item?.id}
-                onClick={() => hanldeCardClick(idx)}
+                onClick={() => handleCardClick(idx)}
               >
                 <section 
                   key={item?.id} 

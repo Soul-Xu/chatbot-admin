@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import { useRouter } from "next/navigation";
 import { Breadcrumb, Table } from "antd"
-import FaqContainer from "../components/container";
+import Container from "../../../components/container";
 import AddFaq from "../add/page";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
@@ -17,11 +17,11 @@ const FaqEdit = () => {
  
   return (
     <div className={classNames("faqEdit")}>
-      <FaqContainer>
+      <Container>
         <div className={classNames("main-content")}>
           <AddFaq /> 
         </div>
-      </FaqContainer>
+      </Container>
     </div>
   )
 }

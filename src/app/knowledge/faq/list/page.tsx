@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import { useRouter } from "next/navigation";
 import { Breadcrumb, Table } from "antd"
-import FaqContainer from "../components/container";
+import Container from "../../../components/container";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -97,7 +97,7 @@ const FaqList = () => {
  
   return (
     <div className={classNames("faqList")}>
-      <FaqContainer>
+      <Container>
         <div className={classNames("main-title")}>
           <Breadcrumb
             items={[
@@ -123,7 +123,7 @@ const FaqList = () => {
             }}
           />
         </div>
-      </FaqContainer>
+      </Container>
     </div>
   )
 }

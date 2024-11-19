@@ -5,7 +5,7 @@ import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import { useRouter, useSearchParams } from "next/navigation";
 import { Breadcrumb, Button, Dropdown } from "antd"
 import type { MenuProps } from 'antd';
-import FaqContainer from "../components/container";
+import Container from "../../../components/container";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -46,7 +46,7 @@ const FaqView = () => {
   
   return (
     <div className={classNames("faqView")}>
-      <FaqContainer>
+      <Container>
         <div className={classNames("main-title")}>
           <Breadcrumb
             items={[
@@ -110,7 +110,7 @@ const FaqView = () => {
             </div>
           </div>
         </div>
-      </FaqContainer>
+      </Container>
     </div>
   )
 }

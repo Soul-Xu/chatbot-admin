@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,12 @@ const classNames = classnames.bind(styles);
 
 interface Props {
   children: React.ReactNode
+}
+
+const titleMap = {
+  'faq': 'FAQ库',
+  'base': '流程实例知识库',
+  'template': '流程模板知识库'
 }
 
 const treeData: TreeDataNode[] = [
@@ -83,86 +89,25 @@ const treeData: TreeDataNode[] = [
   },
 ];
 
-const FaqContainer = (props: Props) => {
+const Container = (props: Props) => {
   const { children } = props;
   const dispatch = useDispatch();
+  const currentUrl = useSelector((state: any) => state.currentUrl);
+  const curUrl = window.location.href;
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log('selected', selectedKeys, info);
   };
-
-  const columns = [
-    {
-      title: '问题',
-      dataIndex: 'fdQuestion',
-      key: 'fdQuestion',
-    },
-    {
-      title: '答案',
-      dataIndex: 'fdAnswer',
-      key: 'fdAnswer',
-    },
-    {
-      title: '创建人',
-      dataIndex: 'fdCreator',
-      key: 'fdCreator',
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'fdCreateTime',
-      key: 'fdCreateTime',
-    },
-    {
-      title: '使用量',
-      dataIndex: 'fdUseCount',
-      key: 'fdUseCount',
-    },
-    {
-      title: '状态',
-      dataIndex: 'fdStatus',
-      key: 'fdStatus'
-    }
-  ]
-
-  const dataSource = [
-    {
-      key: '1',
-      fdQuestion: 'IT需求申请',
-    },
-    {
-      key: '2',
-      fdQuestion: '日常流程',
-    },
-    {
-      key: '3',
-      fdQuestion: '日常流程问答',
-      fdAnswer: '答案1',
-      fdCreator: '陈洪',
-      fdCreateTime: '2022.03.22 16:47:22',
-      fdUseCount: '49',
-      fdStatus: '已生效'
-    },
-    {
-      key: '4',
-      fdQuestion: '日常流程问答',
-      fdAnswer: '答案1',
-      fdCreator: '陈洪',
-      fdCreateTime: '2022.03.22 16:47:22',
-      fdUseCount: '49',
-      fdStatus: '已生效'
-    },
-    {
-      key: '5',
-      fdQuestion: '用章流程',
-    },
-    {
-      key: '6',
-      fdQuestion: '签报流程',
-    },
-  ]
+  const [mainTitle, setMainTitle] = useState('FAQ库');
 
   // 点击新增知识
   const handleAddKnowledge = () => {
-    dispatch(setCurrentUrl('knowledge/faq/add'))
+    console.log('currentUrl', currentUrl, currentUrl?.includes('faq'))
+    if (currentUrl?.includes('faq')) {
+      return
+      dispatch(setCurrentUrl('knowledge/faq/add'))
+    } else {
+      dispatch(setCurrentUrl('knowledge/template/add'))
+    }
   }
 
   // 点击返回
@@ -173,8 +118,8 @@ const FaqContainer = (props: Props) => {
   // 知识子库FAQ列表
   const renderListAction = () => {
     return (
-     <div className={classNames("faqContainer-header-right")}>
-      <div className={classNames("faqContainer-header-right-action")}>
+     <div className={classNames("container-header-right")}>
+      <div className={classNames("container-header-right-action")}>
         <Button type="link" className={classNames("btn-link")}>
           <Image src={ImgTemplateIcon} alt="template" width={14} height={14} />
           <span>导入模版</span>
@@ -182,41 +127,65 @@ const FaqContainer = (props: Props) => {
         <Button className={classNames("btn-default")}>
           导入知识
         </Button>
-        <Link href="#/knowledge/faq/add" onClick={handleAddKnowledge}>
-          <Button className={classNames("btn-action")}>
-            新增知识
-          </Button>
-        </Link>
+        {
+          !currentUrl?.includes('base') && (
+            <Link 
+              href={ 
+                currentUrl?.includes('faq') ? '#/knowledge/faq/add' : '#/knowledge/template/add'
+              } 
+              onClick={handleAddKnowledge}>
+              <Button className={classNames("btn-action")}>
+                新增知识
+              </Button>
+            </Link>
+          )
+        }
       </div>
     </div>
     )
   }
+
+  useEffect(() => {
+    const hasUrl = currentUrl || curUrl 
+      // 检查currentUrl中是否包含关键字
+    let foundTitle = '';
+    if (hasUrl?.includes('faq')) {
+      foundTitle = titleMap.faq;
+    } else if (hasUrl?.includes('base')) {
+      foundTitle = titleMap.base;
+    } else if (hasUrl?.includes('template')) {
+      foundTitle = titleMap.template;
+    }
+
+    // 更新mainTitle状态
+    setMainTitle(foundTitle);
+  }, [currentUrl, curUrl])
  
   return (
-    <div className={classNames("faqList")}>
-      <div className={classNames("faqContainer-header")}>
-        <div className={classNames("faqContainer-header-left")}>
-          <div className={classNames("faqContainer-header-left-icon")}>
+    <div className={classNames("container")}>
+      <div className={classNames("container-header")}>
+        <div className={classNames("container-header-left")}>
+          <div className={classNames("container-header-left-icon")}>
             <Link href="#/knowledge" onClick={handleBack}>
               <Button className={classNames("icon-btn")}>
                 <Image src={ImgBackIcon} alt="back-icon" width={12} height={12} />
               </Button>
             </Link>
           </div>
-          <div className={classNames("faqContainer-header-left-title")}>FAQ库</div>
-          <div className={classNames("faqContainer-header-left-creator")}>
+          <div className={classNames("container-header-left-title")}>{mainTitle}</div>
+          <div className={classNames("container-header-left-creator")}>
             <span>创建人</span>
             <span>陈海勇</span>
           </div>
-          <div className={classNames("faqContainer-header-left-createTime")}>
+          <div className={classNames("container-header-left-createTime")}>
             <span>创建时间</span>
             <span>2022.03.22</span>
           </div>
         </div>
         { renderListAction() }
       </div>
-      <div className={classNames("faqContainer-content")}>
-        <div className={classNames("faqContainer-content-tree")}>
+      <div className={classNames("container-content")}>
+        <div className={classNames("container-content-tree")}>
           <div className={classNames("tree-title")}>
             <span>目录</span>
             <Button className={classNames("tree-title-btn")}>
@@ -235,7 +204,7 @@ const FaqContainer = (props: Props) => {
             />
           </div>
         </div>
-        <div className={classNames("faqContainer-content-main")}>
+        <div className={classNames("container-content-main")}>
           { children }
         </div>
       </div>
@@ -243,5 +212,5 @@ const FaqContainer = (props: Props) => {
   )
 }
 
-export default FaqContainer
+export default Container
 

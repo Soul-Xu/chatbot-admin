@@ -2,36 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 0, 122, 255;
-  --background-end-rgb: 0, 53, 128;
-  --primary-color-rgb: 0, 122, 255;
-}
-
-@media (prefers-color-scheme: default) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 53, 128;
-    --background-end-rgb: 0, 17, 51;
-    --primary-color-rgb: 0, 122, 255;
-  }
-}
-
 body {
   position: relative;
-  background: linear-gradient(to bottom, rgb(var(--background-start-rgb)), rgb(var(--background-end-rgb)));
-  color: rgb(var(--foreground-rgb));
-}
-
-/* 使用 CSS 变量来设置 Ant Design 组件的主题颜色 */
-:root {
-  --antd-wave-shadow-color: rgb(var(--primary-color-rgb));
-  --antd-primary-color: rgb(var(--primary-color-rgb));
-  --antd-primary-color-hover: lighten(rgb(var(--primary-color-rgb)), 10%);
-  --antd-primary-color-active: darken(rgb(var(--primary-color-rgb)), 10%);
-  --antd-primary-color-outline: rgb(var(--primary-color-rgb));
-  --antd-primary-color-inverse: #ffffff;
 }
 
 /* 你可能还需要覆盖一些特定的类来确保颜色应用 */
@@ -102,4 +74,12 @@ body {
 
 .ant-form-item:last-child {
   margin-bottom: 0 !important;
+}
+
+.ant-tree-select {
+  width: 468px !important;
+}
+
+.ant-transfer-operation .ant-btn-primary {
+  color: #d9d9d9 !important;
 }

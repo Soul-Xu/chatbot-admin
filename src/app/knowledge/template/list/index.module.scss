@@ -1,0 +1,24 @@
+.templateList {
+  .main-title {
+    padding: 12px 18px 16px 18px;
+    height: 48px;
+    background: #FFFFFF;
+    box-shadow: inset 0px -1px 0px 0px #DADFE6;
+
+    a {
+      height: 20px;
+      font-family: MicrosoftYaHei;
+      font-size: 14px;
+      color: #0052D9;
+      line-height: 20px;
+      text-align: left;
+      font-style: normal;
+    }
+  }
+
+  .main-table {
+    padding: 0;
+    width: 100%;
+    height: calc(100vh - 114px);
+  }
+}

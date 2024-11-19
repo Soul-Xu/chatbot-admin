@@ -1,4 +1,4 @@
-.faqContainer {
+.container {
   &-header {
     padding: 14px 24px;
     display: flex;
@@ -89,6 +89,9 @@
 
     &-right {
       &-action {
+        display: flex;
+        align-items: center;
+
         .btn-link {
           span {
             margin-left: 4px;

@@ -28,19 +28,19 @@ const KnowledgeList = () => {
       createdTime: '2022-01-01 12:00:00'
     },
     {
-      id: "processInstance",
+      id: "base",
       title: "流程实例知识库",
       ImgUrl: ImgPic2,
-      link: "#/knowledge/processInstance",
+      link: "#/knowledge/base/list",
       description: "知识子库描述知识子库描述知识子库描述知识子库描述",
       creator: "陈海勇",
       createdTime: '2022-01-01 12:00:00'
     },
     {
-      id: "processTemplate",
+      id: "template",
       title: "流程模版知识库",
       ImgUrl: ImgPic3,
-      link: "#/knowledge/processTemplate",
+      link: "#/knowledge/template/list",
       description: "知识子库描述知识子库描述知识子库描述知识子库描述知识",
       creator: "陈海勇",
       createdTime: '2022-01-01 12:00:00'
@@ -60,9 +60,8 @@ const KnowledgeList = () => {
   };
 
   const handleCardClick = (idx:any) => {
-    if (idx === 0) {
-      dispatch(setCurrentUrl('knowledge/faq/list'))
-    }
+    const redirectUrl = cardList[idx]?.link.split("#/")[1]
+    dispatch(setCurrentUrl(`${redirectUrl}`))
   }
 
   return (

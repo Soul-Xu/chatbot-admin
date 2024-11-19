@@ -1,4 +1,4 @@
-.addFaq {
+.addTemplate {
   &-header {
     padding: 14px 24px;
     display: flex;
@@ -92,12 +92,6 @@
     padding: 16px 24px;
 
     .form {
-      &-select {
-        width: 468px;
-        height: 32px;
-        box-sizing: border-box;
-      }
-
       &-time {
         display: flex;
 
@@ -142,6 +136,25 @@
         }
       }
 
+      &-tag {
+        // width: 80px;
+        padding: 5px 12px;
+        height: 32px;
+        border-radius: 3px;
+        border: 1px solid #DCDEE1;
+
+        span {
+          // width: 56px;
+          height: 22px;
+          font-family: MicrosoftYaHei;
+          font-size: 14px;
+          color: #687181;
+          line-height: 22px;
+          text-align: left;
+          font-style: normal;
+        }
+      }
+
       &-editor {
         display: flex;
         flex-direction: column;
@@ -155,6 +168,23 @@
         background: #FFFFFF;
         border-radius: 3px;
         // border: 1px solid #D9D9D9;
+      }
+    }
+
+    .action-add {
+      width: 80px;
+      height: 32px;
+      border-radius: 3px;
+      border: 1px solid #DCDEE1;
+
+      span {
+        height: 22px;
+        font-family: MicrosoftYaHei;
+        font-size: 14px;
+        color: #687181;
+        line-height: 22px;
+        text-align: left;
+        font-style: normal;
       }
     }
 

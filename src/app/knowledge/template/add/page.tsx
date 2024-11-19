@@ -2,27 +2,42 @@
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { useDispatch, useSelector } from 'react-redux';
+// import Container from "@/app/components/container";
+import AddTagModal from "../addTag/page";
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
 import Image from "next/image"
 import ImgBackIcon from "@/public/images/back-icon.png"
-import { Button, Form, Radio, TreeSelect, DatePicker, Input } from "antd"
+import { Button, Form, Select, Tag, TreeSelect, Input } from "antd"
 import type { TreeSelectProps } from 'antd';
+import { PlusOutlined } from "@ant-design/icons";
 import { treeData } from "@/app/constants/mock"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const AddFaq = () => {
+const tagList = [
+  {
+    id: 1,
+    name: "流程开发",
+  },
+  {
+    id: 2,
+    name: "开发规范",
+  },
+]
+
+const AddTemplate = () => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
   const [form] = Form.useForm();
   const [effectiveTime, setEffectiveTime] = useState(1)
   const [editorValue, setEditorValue] = useState("")
   const [curType, setCurType] = useState<any>("add")
+  const [showAddTagModal, setShowAddTagModal] = useState(false)
 
-   const [value, setValue] = useState<string>();
+  const [value, setValue] = useState<string>();
 
   const onChange = (newValue: string) => {
     setValue(newValue);
@@ -33,11 +48,15 @@ const AddFaq = () => {
   };
 
   const handleBack = () => {
-    dispatch(setCurrentUrl('knowledge/faq/list'))
+    dispatch(setCurrentUrl('knowledge/template/list'))
   }
 
   const handleEditorChange = (value: any) => {
     console.log('handleEditorChange', value)
+  }
+
+  const onShowAddModal = () => {
+    setShowAddTagModal(true)
   }
 
   useEffect(() => {
@@ -49,22 +68,22 @@ const AddFaq = () => {
   }, [currentUrl])
 
   return (
-    <div className={classNames("addFaq")}>
+    <div className={classNames("addTemplate")}>
       { curType === "add" && (
-        <div className={classNames("addFaq-header")}>
-          <div className={classNames("addFaq-header-left")}>
-            <div className={classNames("addFaq-header-left-icon")}>
-              <Link href="#/knowledge/faq/list" onClick={handleBack}>
+        <div className={classNames("addTemplate-header")}>
+          <div className={classNames("addTemplate-header-left")}>
+            <div className={classNames("addTemplate-header-left-icon")}>
+              <Link href="#/knowledge/template/list" onClick={handleBack}>
                 <Button className={classNames("icon-btn")}>
                   <Image src={ImgBackIcon} alt="back-icon" width={12} height={12} />
                 </Button>
               </Link>
             </div>
-            <div className={classNames("addFaq-header-left-title")}>新增知识</div>
+            <div className={classNames("addTemplate-header-left-title")}>新增知识</div>
           </div>
         </div>
       )}
-      <div className={classNames("addFaq-content")}>
+      <div className={classNames("addTemplate-content")}>
         <Form
           form={form}
           className={classNames("form")}
@@ -76,9 +95,41 @@ const AddFaq = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="问题类型"
-            name="questionType"
-            rules={[{ required: true, message: '请选择问题类型' }]}
+            label="流程分类"
+            name="processType"
+            rules={[{ required: true, message: '请选择流程分类' }]}
+          >
+            <Select
+              // onChange={handleChange}
+              // value={selectedValue}
+              className={classNames("form-select")}
+              placeholder="请选择问题类型"
+            >
+              <Select.Option value="1">数字化办公室 - 金科中心常用</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="知识标签"
+            name="fdTag"
+            rules={[{ required: true, message: '请选择知识标签' }]}
+          >
+            { tagList.map((tag: any) => {
+              return (
+                <Tag key={tag.id} className={classNames("form-tag")}>{tag.name}</Tag>
+              )
+            }) }
+            <Button 
+              icon={<PlusOutlined />} 
+              className={classNames("action-add")}
+              onClick={onShowAddModal}
+            >
+              添加
+            </Button>
+          </Form.Item>
+          <Form.Item
+            label="可使用者"
+            name="question"
+            rules={[{ required: true, message: '请输入问题' }]}
           >
             <TreeSelect
               showSearch
@@ -86,7 +137,7 @@ const AddFaq = () => {
               value={value}
               dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
               className={classNames("form-treeSelect")}
-              placeholder="请选择问题类型"
+              placeholder="请选择可使用者"
               allowClear
               treeDefaultExpandAll
               onChange={onChange}
@@ -95,42 +146,22 @@ const AddFaq = () => {
             />
           </Form.Item>
           <Form.Item
-            label="生效时间"
-            name="effectiveTime"
-            rules={[{ required: true, message: '请选择生效时间' }]}
+            label="流程名称"
+            name="processName"
+            rules={[{ required: true, message: '请输入流程名称' }]}
           >
-            <Radio.Group 
-              defaultValue={1} 
-              value={effectiveTime}
-              onChange={(e) => setEffectiveTime(e.target.value)}
-            >
-              <Radio value={1} style={{ marginRight: "24px" }}>永久</Radio>
-              <Radio value={2}>自定义</Radio>
-            </Radio.Group>
-          </Form.Item>
-          {effectiveTime === 2 && (
-            <Form.Item
-              label="起始时间"
-              name="startTime"
-              rules={[{ required: true, message: '起始时间' }]}
-            >
-              <div className={classNames("form-time")}>
-                <DatePicker className={classNames("form-time-item")} />
-                  <span className={classNames("form-time-divider")}>~</span>
-                <DatePicker className={classNames("form-time-item")} />
-              </div>
-            </Form.Item>
-          )}
-          <Form.Item
-            label="问题"
-            name="question"
-            rules={[{ required: true, message: '请输入问题' }]}
-          >
-            <Input className={classNames("form-input")} type="text" placeholder="请输入问题" />
+            <Input placeholder="请输入流程名称" className={classNames("form-input")} />
           </Form.Item>
           <Form.Item
-            label="内容"
-            name="content"
+            label="流程链接"
+            name="processLink"
+            rules={[{ required: true, message: '请输入流程链接' }]}
+          >
+            <Input placeholder="请输入流程链接" className={classNames("form-input")} />
+          </Form.Item>
+          <Form.Item
+            label="流程描述"
+            name="fdDescription"
             rules={[{ required: true, message: '请输入内容' }]}
           >
             {/* 富文本编辑器 */}
@@ -142,24 +173,32 @@ const AddFaq = () => {
             />
           </Form.Item>
         </Form>
-        <div 
+        <div
           className={classNames({ 
-            "action-btns-add" : curType === "add", 
-            "action-btns-edit": curType !== "add" 
-          })}>
+          "action-btns-add" : curType === "add", 
+          "action-btns-edit": curType !== "add" 
+        })}>
           <Button type="primary" className={classNames("action-btns-submit")}>
             提交
           </Button>
           <Button type="primary" className={classNames("action-btns-submit")}>
-            保存
+            保存草稿
           </Button>
           <Button className={classNames("action-btns-cancel")}>
             取消
           </Button>
         </div>
       </div>
+      {
+        showAddTagModal && 
+        <AddTagModal
+          show={showAddTagModal}
+          onClose={() => setShowAddTagModal(false)}
+          onOk={() => setShowAddTagModal(false)}
+        />
+      }
     </div>
   )
 }
 
-export default AddFaq
+export default AddTemplate

@@ -9,6 +9,7 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 const TagsList = () => {
+  console.log('tagslist')
   return (
     <div className={classNames("tagslist")}>
       <div className={classNames("tagslist-search")}>

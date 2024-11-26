@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { useDispatch, useSelector } from 'react-redux';
 // import Container from "@/app/components/container";
-import AddTagModal from "../addTag/page";
+import AddTagModal from "@/app/components/addTag/page";
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import Image from "next/image"
 import ImgBackIcon from "@/public/images/back-icon.png"
 import { Button, Form, Select, Tag, TreeSelect, Input } from "antd"
@@ -36,6 +36,7 @@ const AddTemplate = () => {
   const [editorValue, setEditorValue] = useState("")
   const [curType, setCurType] = useState<any>("add")
   const [showAddTagModal, setShowAddTagModal] = useState(false)
+  const [selectTags, setSelectTags] = useState<any>([])
 
   const [value, setValue] = useState<string>();
 
@@ -181,9 +182,9 @@ const AddTemplate = () => {
           <Button type="primary" className={classNames("action-btns-submit")}>
             提交
           </Button>
-          <Button type="primary" className={classNames("action-btns-submit")}>
+          {/* <Button type="primary" className={classNames("action-btns-submit")}>
             保存草稿
-          </Button>
+          </Button> */}
           <Button className={classNames("action-btns-cancel")}>
             取消
           </Button>
@@ -192,6 +193,7 @@ const AddTemplate = () => {
       {
         showAddTagModal && 
         <AddTagModal
+          selectTags={selectTags}
           show={showAddTagModal}
           onClose={() => setShowAddTagModal(false)}
           onOk={() => setShowAddTagModal(false)}

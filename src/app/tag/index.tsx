@@ -12,7 +12,7 @@ import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const Label = () => {
+const Tag = () => {
   const [currentkey, setCurrentKey] = useState('classify')
   const [showAddClassifyModal, setShowAddClassifyModal] = useState(false)
   const [showAddTagModal, setShowAddTagModal] = useState(false)
@@ -41,17 +41,17 @@ const Label = () => {
   }
 
   return (
-    <div className={classNames("label")}>
-      <div className={classNames("label-header")}>
-        <div className={classNames("label-header-left")}>
-          <div className={classNames("label-header-left-title")}>标签库</div>
-          <div className={classNames("label-header-left-divide")}></div>
-          <div className={classNames("label-header-left-tabs")}> 
+    <div className={classNames("tag")}>
+      <div className={classNames("tag-header")}>
+        <div className={classNames("tag-header-left")}>
+          <div className={classNames("tag-header-left-title")}>标签库</div>
+          <div className={classNames("tag-header-left-divide")}></div>
+          <div className={classNames("tag-header-left-tabs")}> 
             <Tabs className={classNames("tabs-container")} defaultActiveKey="1" items={items} onChange={onChange} />
           </div>
         </div>
-        <div className={classNames("label-header-right")}>
-          <div className={classNames("label-header-right-action")}>
+        <div className={classNames("tag-header-right")}>
+          <div className={classNames("tag-header-right-action")}>
             <Button type="link" className={classNames("btn-link")}>
               <Image src={ImgTemplateIcon} alt="template" width={14} height={14} />
               <span>导入模版</span>
@@ -65,7 +65,7 @@ const Label = () => {
           </div>
         </div>
       </div>
-      <div className={classNames("label-content")}>
+      <div className={classNames("tag-content")}>
         {currentkey === 'classify' && <ClassifyManage />}
         {currentkey === 'tags' && <TagsList />}
       </div>
@@ -88,4 +88,4 @@ const Label = () => {
   );
 };
 
-export default Label;
+export default Tag;

@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link'
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { Button, Input, Tooltip } from "antd"
 import Image from "next/image"
 import ImgSearchIcon from "@/public/images/search-icon.png"
@@ -68,9 +68,9 @@ const KnowledgeList = () => {
     <div className={classNames("knowledgeList")}>
       <div className={classNames("knowledgeList-header")}>
         <div className={classNames("knowledgeList-header-title")}>知识库</div>
-        <div className={classNames("knowledgeList-header-action")}>
+        {/* <div className={classNames("knowledgeList-header-action")}>
           <Button className={classNames("btn-action")}>导入子库</Button>
-        </div>
+        </div> */}
       </div>
       <div className={classNames("knowledgeList-search")}>
         <Input 
@@ -101,10 +101,10 @@ const KnowledgeList = () => {
                     {item?.title}
                   </div>
                   {renderDescription(item?.description)}
-                  <div className={classNames("card-created")}>
+                  {/* <div className={classNames("card-created")}>
                     <span>{"创建人：" + item?.creator }</span>
                     <span>{"创建时间：" + item?.createdTime }</span>
-                  </div>
+                  </div> */}
                 </section>
               </Link>
             )

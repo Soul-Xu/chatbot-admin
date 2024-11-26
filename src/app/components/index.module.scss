@@ -1,4 +1,7 @@
 .container {
+  width: calc(100vw - 64px);
+  overflow-x: hidden;
+
   &-header {
     padding: 14px 24px;
     display: flex;
@@ -158,8 +161,8 @@
       width: 240px;
       height: calc(100vh - 88px);
       background: #FFFFFF;
-      border-bottom: 1px solid #e5e7eb;
-      box-shadow: inset -1px 0px 0px 0px #DADFE6;
+      // border-bottom: 1px solid #e5e7eb;
+      // box-shadow: inset -1px 0px 0px 0px #DADFE6;
 
       .tree-title {
         height: 48px;
@@ -200,6 +203,8 @@
 
     &-main {
       width: calc(100% - 240px);
+      border-left: 1px solid #e5e7eb;
+      box-sizing: border-box;
 
       .main-title {
         padding: 12px 18px 16px 18px;

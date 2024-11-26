@@ -4,12 +4,12 @@ import Image from 'next/image';
 import { UserOutlined } from '@ant-design/icons';
 import ImgHomeIcon from '@/public/images/home-icon.png'
 import ImgKnowledgeIcon from '@/public/images/knowledge-icon.png'
-import ImgLabelIcon from '@/public/images/label-icon.png'
+import ImgTagIcon from '@/public/images/tag-icon.png'
 import ImgStatisticsIcon from '@/public/images/statistics-icon.png'
 import ImgSettingIcon from '@/public/images/setting-icon.png'
 import ImgHomeActiveIcon from '@/public/images/home-active-icon.png'
 import ImgKnowledgeActiveIcon from '@/public/images/knowledge-active-icon.png'
-import ImgLabelActiveIcon from '@/public/images/label-active-icon.png'
+import ImgTagActiveIcon from '@/public/images/tag-active-icon.png'
 import ImgStatisticsActiveIcon from '@/public/images/statistics-active-icon.png'
 import ImgSettingActiveIcon from '@/public/images/setting-active-icon.png'
 import { Layout, Menu, Avatar } from 'antd';
@@ -18,7 +18,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import ImgSysIcon from '@/public/images/chatbot-admin.png'
 import Dashboard from './dashboard';
 import Knowledge from './knowledge/page';
-import Label from './label';
+import Tag from './tag';
 import Statistics from './statistics';
 import Settings from './settings';
 import classnames from "classnames/bind";
@@ -39,7 +39,7 @@ const App: React.FC = () => {
   const items: MenuItem[] = [
     { key: 'dashboard', icon: <Image src={currentKey === 'dashboard' ? ImgHomeActiveIcon : ImgHomeIcon} alt="home-icon" width={20} height={20} />, label: '首页' },
     { key: 'knowledge', icon: <Image src={currentKey === 'knowledge' ? ImgKnowledgeActiveIcon : ImgKnowledgeIcon} alt="knowledge-icon" width={20} height={20} />, label: '知识集' },
-    { key: 'label', icon: <Image src={currentKey === 'label' ? ImgLabelActiveIcon : ImgLabelIcon} alt="label-icon" width={20} height={20} />, label: '标签库' },
+    { key: 'tag', icon: <Image src={currentKey === 'tag' ? ImgTagActiveIcon : ImgTagIcon} alt="tag-icon" width={20} height={20} />, label: '标签库' },
     { key: 'statistics', icon: <Image src={currentKey === 'statistics' ? ImgStatisticsActiveIcon : ImgStatisticsIcon} alt="statistics-icon" width={20} height={20} />, label: '分析' },
     { key: 'setting', icon: <Image src={currentKey === 'setting' ? ImgSettingActiveIcon : ImgSettingIcon} alt="setting-icon" width={20} height={20}/>, label: '设置' },
     // 可以继续添加其他菜单项
@@ -65,8 +65,8 @@ const App: React.FC = () => {
         return <Dashboard />;
       case 'knowledge':
         return <Knowledge />;
-      case 'label':
-        return <Label />;
+      case 'tag':
+        return <Tag />;
       case 'statistics':
         return <Statistics />;
       case 'setting':

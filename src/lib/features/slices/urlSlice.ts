@@ -1,7 +1,7 @@
-// features/currentUrl/currentUrlSlice.js
+// features/currentUrl/urlSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
-export const currentUrlSlice = createSlice({
+export const urlSlice = createSlice({
   name: 'currentUrl',
   initialState: '',
   reducers: {
@@ -11,6 +11,6 @@ export const currentUrlSlice = createSlice({
   },
 });
 
-export const { setCurrentUrl } = currentUrlSlice.actions;
+export const { setCurrentUrl } = urlSlice.actions;
 
-export default currentUrlSlice.reducer;
+export default urlSlice.reducer;

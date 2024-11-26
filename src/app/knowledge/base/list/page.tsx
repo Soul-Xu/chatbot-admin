@@ -1,7 +1,7 @@
 import React from "react"
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setCurrentUrl } from "@/lib/features/slices/currentUrlSlice";
+import { setCurrentUrl } from "@/lib/features/slices/urlSlice";
 import { Breadcrumb, Table } from "antd"
 import Container from "@/app/components/container";
 import classnames from "classnames/bind";

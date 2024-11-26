@@ -1,7 +1,9 @@
 "use client"
-import React, { useMemo, useState } from "react"
+import React, { useMemo, useState, useEffect } from "react"
 import { Modal, Button, theme, Transfer, Tree } from "antd"
 import type { GetProp, TransferProps, TreeDataNode } from 'antd'
+import { useDispatch, useSelector } from 'react-redux';
+import { getTagTree } from "@/lib/features/slices/tagSlice"
 import classnames from "classnames/bind"
 import styles from "./index.module.scss"
 const classNames = classnames.bind(styles)
@@ -15,9 +17,10 @@ interface TreeTransferProps {
 }
 
 interface Props {
+  selectTags: any[]
   show: boolean
   onClose: () => void
-  onOk: () => void
+  onOk: (params: any) => void
 }
 
 // Customize Table Transfer
@@ -53,10 +56,6 @@ const TreeTransfer: React.FC<TreeTransferProps> = ({
   const handleSearch: TransferProps['onSearch'] = (dir, value) => {
     console.log('search:', dir, value);
   };
-
-  // const handleChange: TransferProps['onChange'] = (newTargetKeys) => {
-  //   setTargetKeys(newTargetKeys);
-  // };
 
   return (
     <Transfer
@@ -114,11 +113,30 @@ const treeData: TreeDataNode[] = [
 ]
 
 const AddTag = (props: Props) => {
-  const { show, onClose, onOk } = props
+  const { selectTags, show, onClose, onOk } = props
+  const dispatch = useDispatch()
+  const { tagTree } = useSelector((state: any) => state.tag)
   const [targetKeys, setTargetKeys] = useState<TreeTransferProps['targetKeys']>([])
   const onChange: TreeTransferProps['onChange'] = (keys) => {
+    console.log('targetKeys: ', keys);
     setTargetKeys(keys)
   }
+
+  // 根据selectTags初始化targetKeys
+  useEffect(() => {
+    console.log('selectTags', selectTags)
+    const keys = selectTags.map(tag => tag.id.toString());
+    setTargetKeys(keys);
+  }, [selectTags]);
+
+  useEffect(() => {
+    const params = {
+      parentId: '',
+      name: ''
+    }
+    // @ts-ignore
+    dispatch(getTagTree(params))
+  }, [tagTree])
 
   const footer = useMemo(() => {
     return (
@@ -132,13 +150,17 @@ const AddTag = (props: Props) => {
         <Button
           type='primary'
           className={classNames("footer-ok")}
-          onClick={onOk}
+          onClick={() => {
+            console.log('ok', targetKeys)
+            onOk(targetKeys); // 将选中的标签传递给父组件
+            onClose();
+          }}
         >
           确定
         </Button>
       </div>
     )
-  }, [])
+  }, [targetKeys, onClose, onOk]);
 
   return (
     <Modal

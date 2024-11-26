@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
+import { selectNode, getFaqTree } from '@/lib/features/slices/faqSlice'
 import ImgTemplateIcon from "@/public/images/template-icon.png"
 import ImgBackIcon from "@/public/images/back-icon.png"
 import ImgAddIcon from "@/public/images/add-icon.png"
@@ -13,7 +14,6 @@ import { CarryOutOutlined, CheckOutlined, FormOutlined } from '@ant-design/icons
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
-
 interface Props {
   children: React.ReactNode
 }
@@ -24,7 +24,7 @@ const titleMap = {
   'template': '流程模板知识库'
 }
 
-const treeData: TreeDataNode[] = [
+const mockTreeData: TreeDataNode[] = [
   {
     title: 'parent 1',
     key: '0-0',
@@ -93,17 +93,15 @@ const Container = (props: Props) => {
   const { children } = props;
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
+  const faqState = useSelector((state: any) => state.faq);
+  const [treeData, setTreeData] = useState<any>([]);
+  const { faqTree, status, error } = faqState;
   const curUrl = window.location.href;
-  const onSelect = (selectedKeys: React.Key[], info: any) => {
-    console.log('selected', selectedKeys, info);
-  };
   const [mainTitle, setMainTitle] = useState('FAQ库');
 
   // 点击新增知识
   const handleAddKnowledge = () => {
-    console.log('currentUrl', currentUrl, currentUrl?.includes('faq'))
     if (currentUrl?.includes('faq')) {
-      return
       dispatch(setCurrentUrl('knowledge/faq/add'))
     } else {
       dispatch(setCurrentUrl('knowledge/template/add'))
@@ -115,18 +113,24 @@ const Container = (props: Props) => {
     dispatch(setCurrentUrl('knowledge'))
   }
 
-  // 知识子库FAQ列表
+  const onSelect = (selectedKeys: React.Key[], info: any) => {
+    console.log('selected', selectedKeys, info);
+      // 调用 action 来更新选中的节点信息
+    dispatch(selectNode(info.node));
+  };
+
+  // 头部区右侧操作按钮
   const renderListAction = () => {
     return (
      <div className={classNames("container-header-right")}>
       <div className={classNames("container-header-right-action")}>
-        <Button type="link" className={classNames("btn-link")}>
+        {/* <Button type="link" className={classNames("btn-link")}>
           <Image src={ImgTemplateIcon} alt="template" width={14} height={14} />
           <span>导入模版</span>
         </Button>
         <Button className={classNames("btn-default")}>
           导入知识
-        </Button>
+        </Button> */}
         {
           !currentUrl?.includes('base') && (
             <Link 
@@ -145,6 +149,25 @@ const Container = (props: Props) => {
     )
   }
 
+  // 内容区左侧树形结构
+  useEffect(() => {
+    // const convertToTreeData = (data:any) => {
+    //   const mapData = data || mockTreeData
+    //   console.log('mapData', mapData)
+    //   if (Array.isArray(mapData)) {
+    //     mapData.map((item:any) => ({
+    //       title: item.name,
+    //       key: item.id,
+    //       icon: <CarryOutOutlined />,
+    //       children: item.children ? convertToTreeData(item.children) : [],
+    //     }));
+    //   }
+    // }
+    // setTreeData(convertToTreeData(faqTree?.data));
+    setTreeData(mockTreeData);
+  }, [faqTree]);
+
+  // 标题映射
   useEffect(() => {
     const hasUrl = currentUrl || curUrl 
       // 检查currentUrl中是否包含关键字
@@ -160,6 +183,15 @@ const Container = (props: Props) => {
     // 更新mainTitle状态
     setMainTitle(foundTitle);
   }, [currentUrl, curUrl])
+
+  useEffect(() => {
+    const params = {
+      parentId: '',
+      name: '',
+    }
+    // @ts-ignore
+    dispatch(getFaqTree(params))
+  }, [])
  
   return (
     <div className={classNames("container")}>
@@ -173,14 +205,14 @@ const Container = (props: Props) => {
             </Link>
           </div>
           <div className={classNames("container-header-left-title")}>{mainTitle}</div>
-          <div className={classNames("container-header-left-creator")}>
+          {/* <div className={classNames("container-header-left-creator")}>
             <span>创建人</span>
             <span>陈海勇</span>
           </div>
           <div className={classNames("container-header-left-createTime")}>
             <span>创建时间</span>
             <span>2022.03.22</span>
-          </div>
+          </div> */}
         </div>
         { renderListAction() }
       </div>

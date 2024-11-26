@@ -1,7 +1,8 @@
 "use client"
-import React from "react"
+import React, { useEffect } from "react"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
+import { getFaqDetail } from "@/lib/features/slices/faqSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Breadcrumb, Button, Dropdown } from "antd"
 import type { MenuProps } from 'antd';
@@ -13,6 +14,13 @@ const classNames = classnames.bind(styles);
 const FaqView = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const faqDetail = useSelector((state: any) => state.faq);
+  // 获取hash部分，去掉前面的'#'符号
+  const hash = window.location.hash.substring(1);
+  // 使用URLSearchParams解析参数
+  const params = new URLSearchParams(hash.split('?')[1]);
+  // 获取id参数
+  const idFromHash = params.get('id');
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click', e);
@@ -43,6 +51,11 @@ const FaqView = () => {
     router.push(`#/knowledge/faq/edit?id=${currenId}`);
     dispatch(setCurrentUrl('/knowledge/faq/edit'));
   }
+
+  useEffect(() => {
+    // @ts-ignore
+    idFromHash && dispatch(getFaqDetail(idFromHash));
+  }, [idFromHash])
   
   return (
     <div className={classNames("faqView")}>

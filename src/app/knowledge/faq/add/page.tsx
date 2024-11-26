@@ -1,52 +1,184 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
-import { useDispatch, useSelector } from 'react-redux';
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
+import { faqAdd, faqUpdate, getFaqDetail } from '@/lib/features/slices/faqSlice';
 import Image from "next/image"
 import ImgBackIcon from "@/public/images/back-icon.png"
-import { Button, Form, Radio, TreeSelect, DatePicker, Input } from "antd"
+import { Button, Form, Radio, TreeSelect, DatePicker, Input, Tag } from "antd"
+import { PlusOutlined } from "@ant-design/icons";
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import dayjs from 'dayjs'
 import type { TreeSelectProps } from 'antd';
+import AddTagModal from "@/app/components/addTag/page";
 import { treeData } from "@/app/constants/mock"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
+import { useRouter } from 'next/router';
 const classNames = classnames.bind(styles);
+
+const tagList = [
+  {
+    id: 1,
+    name: "流程开发",
+  },
+  {
+    id: 2,
+    name: "开发规范",
+  },
+]
 
 const AddFaq = () => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
+  // const router = useRouter();
+
   const [form] = Form.useForm();
-  const [effectiveTime, setEffectiveTime] = useState(1)
-  const [editorValue, setEditorValue] = useState("")
+  const [formValues, setFormValues] = useState<any>({
+    question: "",
+    answer: "",
+    effectiveType: "FOREVER", // 1:永久 2.自定义
+    effectiveBeginTime: "",
+    effectiveEndTime: "",
+    category: [],
+    tagList: []
+  })
   const [curType, setCurType] = useState<any>("add")
-
-   const [value, setValue] = useState<string>();
-
-  const onChange = (newValue: string) => {
-    setValue(newValue);
-  };
+  const [showAddTagModal, setShowAddTagModal] = useState(false)
+  const [faqId, setFaqId] = useState<string | null>(null);
+  const [selectTags, setSelectTags] = useState<any>([])
 
   const onPopupScroll: TreeSelectProps['onPopupScroll'] = (e) => {
     console.log('onPopupScroll', e);
   };
 
+  const onShowAddModal = () => {
+    setShowAddTagModal(true)
+  }
+
   const handleBack = () => {
     dispatch(setCurrentUrl('knowledge/faq/list'))
   }
 
-  const handleEditorChange = (value: any) => {
-    console.log('handleEditorChange', value)
+  const onFormValuesChange = (key: string, e: any) => {
+    if (key === 'effectiveType' || key === 'question') {
+      const value = e.target.value
+      form.setFieldsValue({
+        [key]: value,
+      })
+      setFormValues({ ...formValues, [key]: value })
+    } else if(key === 'effectiveBeginTime' || key === 'effectiveEndTime') {
+      const value = dayjs(e)
+      console.log('value', dayjs(value).valueOf())
+      form.setFieldsValue({
+        [key]: value.valueOf(),
+      })
+      setFormValues({ ...formValues, [key]: value })
+    }
+    else {
+      form.setFieldsValue({
+        [key]: e,
+      })
+      setFormValues({ ...formValues, [key]: e })
+    }
   }
+
+  const handleAddTag = (selectedTagIds: string[]) => {
+    console.log('selectedTagIds', selectedTagIds)
+    setSelectTags(selectedTagIds)
+    // 假设tagList中的每个标签对象都有id属性，且与TreeDataNode的key相对应
+    const selectedTags = tagList.filter(tag => selectedTagIds.includes(tag.id.toString()));
+    setFormValues((prevValues:any) => ({
+      ...prevValues,
+      tagList: [...prevValues.tagList, ...selectedTags]
+    }));
+  };
+
 
   useEffect(() => {
     if (currentUrl && currentUrl.includes('edit')) {
-      setCurType("edit")
+      setCurType("edit");
+      const id = currentUrl.split('/').pop();
+      if (id) {
+        setFaqId(id);
+        // @ts-ignore
+        dispatch(getFaqDetail(id));
+      }
     } else {
-      setCurType("add")
+      setCurType("add");
     }
-  }, [currentUrl])
+  }, [currentUrl, dispatch]);
+
+  useEffect(() => {
+    if (curType === "edit" && faqId) {
+      // Populate the form with the detail data
+      // @ts-ignore
+      dispatch(getFaqDetail(faqId)).then((action) => {
+        if (action.meta.requestStatus === 'fulfilled') {
+          const detail = action.payload.data;
+          form.setFieldsValue({
+            question: detail.question,
+            answer: detail.answer,
+            category: detail.category,
+            effectiveType: detail.effectiveType,
+            effectiveBeginTime: detail.effectiveBeginTime,
+            effectiveEndTime: detail.effectiveEndTime,
+            tagList: detail.tagList,
+          });
+          setFormValues({
+            question: detail.question,
+            answer: detail.answer,
+            category: detail.category,
+            effectiveType: detail.effectiveType,
+            effectiveBeginTime: detail.effectiveBeginTime,
+            effectiveEndTime: detail.effectiveEndTime,
+            tagList: detail.tagList,  
+          })
+        }
+      });
+    }
+  }, [curType, faqId, dispatch, form]);
+
+  useEffect(() => {
+    form.setFieldValue('effectiveType', formValues.effectiveType)
+  }, [])
+
+  const onFinish = async () => {
+    form.validateFields();
+    const values = form.getFieldsValue();
+    console.log('formValues', values);
+    // 进行表单校验
+    try {
+      const payload = {
+        ...values,
+        ...formValues,
+        category: { id: values.category }, // 假设选择的分类ID是values.category
+        tagList: formValues.tagList.map((tag: any) => ({ id: tag.id })), // 构造tagList
+      };
+
+      if (formValues.effectiveType === "FOREVER") {
+        delete payload.effectiveBeginTime 
+        delete payload.effectiveEndTime
+      }
+
+      console.log('post', payload)
+
+      if (curType === "add") {
+        // @ts-ignore
+        await dispatch(faqAdd(payload));
+      } else if (curType === "edit" && faqId) {
+        // @ts-ignore
+        await dispatch(faqUpdate({ id: faqId, ...payload }));
+      }
+      // 提交成功后的操作，例如跳转或提示
+    } catch (error) {
+      // 处理错误，例如显示错误消息
+      console.error('Failed to submit form:', error);
+    }
+  }
 
   return (
     <div className={classNames("addFaq")}>
@@ -77,68 +209,103 @@ const AddFaq = () => {
         >
           <Form.Item
             label="问题类型"
-            name="questionType"
+            name="category"
             rules={[{ required: true, message: '请选择问题类型' }]}
           >
             <TreeSelect
               showSearch
               style={{ width: '100%' }}
-              value={value}
+              value={formValues.category}
               dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
               className={classNames("form-treeSelect")}
               placeholder="请选择问题类型"
               allowClear
               treeDefaultExpandAll
-              onChange={onChange}
+              onChange={(e: any) => onFormValuesChange("category", e)}
               treeData={treeData}
               onPopupScroll={onPopupScroll}
             />
           </Form.Item>
           <Form.Item
             label="生效时间"
-            name="effectiveTime"
+            name="effectiveType"
             rules={[{ required: true, message: '请选择生效时间' }]}
           >
             <Radio.Group 
               defaultValue={1} 
-              value={effectiveTime}
-              onChange={(e) => setEffectiveTime(e.target.value)}
+              value={formValues.effectiveType}
+              onChange={(e: any) => onFormValuesChange("effectiveType", e)}
             >
-              <Radio value={1} style={{ marginRight: "24px" }}>永久</Radio>
-              <Radio value={2}>自定义</Radio>
+              <Radio value={"FOREVER"} style={{ marginRight: "24px" }}>永久</Radio>
+              <Radio value={"CUSTOM"}>自定义</Radio>
             </Radio.Group>
           </Form.Item>
-          {effectiveTime === 2 && (
+          {formValues.effectiveType === "CUSTOM" && (
             <Form.Item
               label="起始时间"
               name="startTime"
               rules={[{ required: true, message: '起始时间' }]}
             >
               <div className={classNames("form-time")}>
-                <DatePicker className={classNames("form-time-item")} />
+                <DatePicker 
+                  locale={locale}
+                  format="YYYY-MM-DD" // 可以根据需要设置日期格式
+                  className={classNames("form-time-item")}
+                  value={formValues.effectiveBeginTime} 
+                  onChange={(e: any) => onFormValuesChange("effectiveBeginTime", e)}
+                />
                   <span className={classNames("form-time-divider")}>~</span>
-                <DatePicker className={classNames("form-time-item")} />
+                <DatePicker 
+                  locale={locale}
+                  format="YYYY-MM-DD" // 可以根据需要设置日期格式
+                  className={classNames("form-time-item")} 
+                  value={formValues.effectiveEndTime} 
+                  onChange={(e: any) => onFormValuesChange("effectiveEndTime", e)}
+                />
               </div>
             </Form.Item>
           )}
+          <Form.Item
+            label="知识标签"
+            name="fdTag"
+            rules={[{ required: true, message: '请选择知识标签' }]}
+          >
+            { tagList.map((tag: any) => {
+              return (
+                <Tag key={tag.id} className={classNames("form-tag")}>{tag.name}</Tag>
+              )
+            }) }
+            <Button 
+              icon={<PlusOutlined />} 
+              className={classNames("action-add")}
+              onClick={onShowAddModal}
+            >
+              添加
+            </Button>
+          </Form.Item>
           <Form.Item
             label="问题"
             name="question"
             rules={[{ required: true, message: '请输入问题' }]}
           >
-            <Input className={classNames("form-input")} type="text" placeholder="请输入问题" />
+            <Input 
+              className={classNames("form-input")} 
+              type="text" 
+              placeholder="请输入问题"
+              onChange={(e: any) => onFormValuesChange("question", e)}
+            />
           </Form.Item>
           <Form.Item
             label="内容"
-            name="content"
+            name="answer"
             rules={[{ required: true, message: '请输入内容' }]}
           >
             {/* 富文本编辑器 */}
             <ReactQuill
               theme="snow"
-              value={editorValue} 
+              value={formValues.answer} 
               className={classNames("form-editor")}
-              onChange={handleEditorChange}
+              onChange={(e: any) => onFormValuesChange("answer", e)}
             />
           </Form.Item>
         </Form>
@@ -147,17 +314,30 @@ const AddFaq = () => {
             "action-btns-add" : curType === "add", 
             "action-btns-edit": curType !== "add" 
           })}>
-          <Button type="primary" className={classNames("action-btns-submit")}>
+          <Button 
+            type="primary" 
+            className={classNames("action-btns-submit")}
+            onClick={onFinish}
+          >
             提交
           </Button>
-          <Button type="primary" className={classNames("action-btns-submit")}>
-            保存
-          </Button>
+          {/* <Button type="primary" className={classNames("action-btns-submit")}>
+            保存草稿
+          </Button> */}
           <Button className={classNames("action-btns-cancel")}>
             取消
           </Button>
         </div>
       </div>
+      {
+        showAddTagModal && 
+        <AddTagModal
+          selectTags={selectTags}
+          show={showAddTagModal}
+          onClose={() => setShowAddTagModal(false)}
+          onOk={handleAddTag} // 使用handleAddTag来接收选中的标签
+        />
+      }
     </div>
   )
 }

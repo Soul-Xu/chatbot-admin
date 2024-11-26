@@ -1,7 +1,7 @@
 "use client"
 import React from "react"
 import { useDispatch, useSelector } from 'react-redux';
-import { setCurrentUrl } from '@/lib/features/slices/currentUrlSlice';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { useRouter } from "next/navigation";
 import { Breadcrumb, Table } from "antd"
 import Container from "../../../components/container";

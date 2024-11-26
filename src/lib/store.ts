@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { currentUrlSlice } from './features/slices/currentUrlSlice'
+import { urlSlice } from './features/slices/urlSlice'
+import { faqSlice } from './features/slices/faqSlice'
+import { tagSlice } from './features/slices/tagSlice'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      currentUrl: currentUrlSlice.reducer,
+      currentUrl: urlSlice.reducer,
+      faq: faqSlice.reducer,
+      tag: tagSlice.reducer,
     },
   })
 }

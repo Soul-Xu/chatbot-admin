@@ -92,19 +92,71 @@ interface TemplateDetail {
   };
 }
 
-
-
 // 定义错误类型
 interface FetchTemplateError {
   message: string;
 }
 
-// template树形结构
+// template树型结构列表
 export const getTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValue: FetchTemplateError }>(
   'getTemplateTree',
   async (params, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post('/tag-cate/tree', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// template树型结构新增
+export const addTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValue: FetchTemplateError }>(
+  'addTemplateTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/tag-cate/add', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// template树型结构编辑
+export const updateTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValue: FetchTemplateError }>(
+  'updateTemplateTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/tag-cate/update', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// template树型结构删除
+export const deleteTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValue: FetchTemplateError}>(
+  'deleteTemplateTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/tag-cate/delete', params, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -151,6 +203,10 @@ export const getTemplateDetail = createAsyncThunk<TemplateDetail, void, { reject
 
 const initialState = {
   templateTree: [],
+  templateTreeAdd: {},
+  templateTreeUpdate: {},
+  templateTreeDelete: {},
+  templateUpdate: {},
   templateList: {},
   templateDetail: {},
   status: '',
@@ -175,6 +231,18 @@ export const templateSlice = createSlice({
       .addCase(getTemplateTree.pending, (state) => {
         state.status = 'loading';
         state.error = null;
+      })
+      .addCase(addTemplateTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.templateTreeAdd = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(updateTemplateTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.templateTreeUpdate = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(deleteTemplateTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.templateTreeDelete = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getTemplateList.fulfilled, (state, action) => {
         state.status = 'succeeded';

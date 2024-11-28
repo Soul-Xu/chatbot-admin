@@ -9,6 +9,7 @@ import { selectTemplateNode, getTemplateTree } from '@/lib/features/slices/templ
 import ImgBackIcon from "@/public/images/back-icon.png"
 import ImgAddIcon from "@/public/images/add-icon.png"
 import { Tree, Dropdown, Menu, Button, Input, Tooltip } from "antd"
+import type { MenuProps } from 'antd';
 import type { TreeDataNode } from 'antd';
 import { CarryOutOutlined, FormOutlined } from '@ant-design/icons';
 import AddClassify from "./addClassify";
@@ -30,71 +31,6 @@ const titleMap = {
   }
 }
 
-const mockTreeData: TreeDataNode[] = [
-  {
-    title: 'parent 1',
-    key: '0-0',
-    icon: <CarryOutOutlined />,
-    children: [
-      {
-        title: 'parent 1-0',
-        key: '0-0-0',
-        icon: <CarryOutOutlined />,
-        children: [
-          { title: 'leaf', key: '0-0-0-0', icon: <CarryOutOutlined /> },
-          {
-            title: (
-              <>
-                <div>multiple line title</div>
-                <div>multiple line title</div>
-              </>
-            ),
-            key: '0-0-0-1',
-            icon: <CarryOutOutlined />,
-          },
-          { title: 'leaf', key: '0-0-0-2', icon: <CarryOutOutlined /> },
-        ],
-      },
-      {
-        title: 'parent 1-1',
-        key: '0-0-1',
-        icon: <CarryOutOutlined />,
-        children: [{ title: 'leaf', key: '0-0-1-0', icon: <CarryOutOutlined /> }],
-      },
-      {
-        title: 'parent 1-2',
-        key: '0-0-2',
-        icon: <CarryOutOutlined />,
-        children: [
-          { title: 'leaf', key: '0-0-2-0', icon: <CarryOutOutlined /> },
-          {
-            title: 'leaf',
-            key: '0-0-2-1',
-            icon: <CarryOutOutlined />,
-            switcherIcon: <FormOutlined />,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'parent 2',
-    key: '0-1',
-    icon: <CarryOutOutlined />,
-    children: [
-      {
-        title: 'parent 2-0',
-        key: '0-1-0',
-        icon: <CarryOutOutlined />,
-        children: [
-          { title: 'leaf', key: '0-1-0-0', icon: <CarryOutOutlined /> },
-          { title: 'leaf', key: '0-1-0-1', icon: <CarryOutOutlined /> },
-        ],
-      },
-    ],
-  },
-];
-
 const Container = (props: Props) => {
   const { children } = props;
   const dispatch = useDispatch();
@@ -105,6 +41,140 @@ const Container = (props: Props) => {
   const curUrl = window.location.href;
   const [mainCard, setMainCard] = useState(titleMap['faq']);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [addType, setAddType] = useState('add');
+
+  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('click left button', e);
+  };
+
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click====menu', e);
+    const keyValue = e.key
+    if (keyValue === 'edit') {
+      setAddType('edit')
+      setShowAddModal(true)
+    }
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      label: '编辑',
+      key: 'edit',
+    },
+    {
+      label: '删除',
+      key: 'delete',
+    },
+  ];
+
+  // 假设你的 Dropdown 组件可以这样使用
+  const menuProps = {
+    items,
+    onClick: handleMenuClick,
+  };
+
+  // 假设你的 Dropdown 组件可以这样使用
+  // @ts-ignore
+  const DropdownWithTitle = ({ title }) => {
+    // 定义一个样式，用于限制标题的宽度并添加省略号
+    const titleStyle = {
+      maxWidth: '150px', // 设置一个最大宽度，可以根据需要调整
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    };
+
+    // 定义 Tooltip 的样式，调整其宽度
+    const tooltipOverlayStyle = {
+      width: '208px', // 设置 Tooltip 的最大宽度
+      borderRadius: '6px',
+      overflow: 'hidden', // 确保内容不会溢出
+    };
+
+    return (
+      <Tooltip 
+        placement="top"
+        title={title}
+        overlayStyle={tooltipOverlayStyle} // 使用内联样式
+      >
+        <Dropdown.Button menu={menuProps} onClick={handleButtonClick}>
+          <div className={classNames("tree-title")} style={titleStyle}>
+            {title}
+          </div>
+        </Dropdown.Button>
+      </Tooltip>
+    );
+  };
+
+
+  const mockTreeData: TreeDataNode[] = [
+    {
+      title: "parent",
+      key: '0-0',
+      icon: <CarryOutOutlined />,
+      children: [
+        {
+          title: 'parent 1-0',
+          key: '0-0-0',
+          icon: <CarryOutOutlined />,
+          children: [
+            { title: 'leaf', key: '0-0-0-0', icon: <CarryOutOutlined /> },
+            { title: 'leaf', key: '0-0-0-2', icon: <CarryOutOutlined /> },
+          ],
+        },
+        {
+          title: 'parent 1-1',
+          key: '0-0-1',
+          children: [{ title: 'leaf', key: '0-0-1-0', icon: <CarryOutOutlined /> }],
+        },
+        {
+          title: 'parent 1-2',
+          key: '0-0-2',
+          icon: <CarryOutOutlined />,
+          children: [
+            { title: 'leaf', key: '0-0-2-0', icon: <CarryOutOutlined /> },
+            {
+              title: 'leaf',
+              key: '0-0-2-1',
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: 'parent 2',
+      key: '0-1',
+      icon: <CarryOutOutlined />,
+      children: [
+        {
+          title: 'parent 2-0',
+          key: '0-1-0',
+          icon: <CarryOutOutlined />,
+          children: [
+            { title: 'leaf', key: '0-1-0-0', icon: <CarryOutOutlined /> },
+            { title: 'leaf', key: '0-1-0-1', icon: <CarryOutOutlined /> },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // 定义一个函数来递归地修改树形数据的 title
+  const updateTreeTitles = (nodes:any) => {
+    return nodes.map((node: any) => {
+      // 创建一个新的 DropdownWithTitle 组件，并将原始 title 作为属性传递
+      const newNode = {
+        ...node,
+        title: <DropdownWithTitle title={node.title} />, // 使用原始 title
+        children: node.children ? updateTreeTitles(node.children) : undefined
+      };
+      return newNode;
+    });
+  };
+
+  // 使用 updateTreeTitles 函数更新 mockTreeData
+  const updatedMockTreeData = updateTreeTitles(mockTreeData);
+
 
   // 点击新增知识
   const handleAddKnowledge = () => {
@@ -113,6 +183,11 @@ const Container = (props: Props) => {
     } else {
       dispatch(setCurrentUrl('knowledge/template/add'))
     }
+  }
+
+  // 点击树形节点中按钮
+  const handleTreeBtnClick = (node: any) => {
+    console.log('handleTreeBtnClick', node)
   }
 
   // 点击返回
@@ -165,15 +240,9 @@ const Container = (props: Props) => {
     )
   }
 
-  // 示例：处理节点点击事件
-  const handleMenuClick = (e:any) => {
-    console.log('click', e);
-    // 这里可以添加编辑或删除的逻辑
-  };
-
   // 内容区左侧树形结构
   useEffect(() => {
-    setTreeData(mockTreeData);
+    setTreeData(updatedMockTreeData);
   }, [faqTree]);
 
   // 标题映射
@@ -250,6 +319,7 @@ const Container = (props: Props) => {
       </div>
       {showAddModal && (
         <AddClassify
+          type={addType}
           show={showAddModal}
           onClose={() => setShowAddModal(false)}
           onOk={() => setShowAddModal(false)}

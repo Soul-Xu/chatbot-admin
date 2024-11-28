@@ -111,7 +111,7 @@ interface FaqUpdate {
 
 // 定义update返回类型
 
-// faq树形结构
+// faq树型结构列表
 export const getFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFaqError }>(
   'getFaqTree',
   async (params, { rejectWithValue }) => {
@@ -123,6 +123,61 @@ export const getFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFa
       });
       return response.data;
     } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// faq树型结构新增
+export const addFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFaqError }>(
+  'addFaqTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/faq-cate/add', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// faq树型结构编辑
+export const updateFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFaqError }>(
+  'updateFaqTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/faq-cate/update', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+);
+
+// faq树型结构删除
+export const deleteFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFaqError }>(
+  'deleteFaqTree',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/faq-cate/delete', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    }
+    catch (error: any) {
       // 使用 rejectWithValue 来返回错误信息
       return rejectWithValue({ message: error.response.data });
     }
@@ -199,6 +254,9 @@ export const faqUpdate = createAsyncThunk<FaqUpdate, void, { rejectValue: FetchF
 
 const initialState = {
   faqTree: [],
+  faqTreeAdd: {},
+  faqTreeUpdate: {},
+  faqTreeDelete: {},
   faqList: {},
   faqDetail: {},
   faqAdd: {},
@@ -234,6 +292,18 @@ export const faqSlice = createSlice({
         state.status = 'failed';
         // 确保这里的 action.error 是正确的类型
         state.error = action.payload as FetchFaqError;
+      })
+      .addCase(addFaqTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.faqTreeAdd = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(updateFaqTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.faqTreeUpdate = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(deleteFaqTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.faqTreeDelete = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getFaqList.fulfilled, (state, action) => {
         state.status = 'succeeded';

@@ -5,13 +5,14 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 interface Props {
+  type: string
   show: boolean
   onClose: () => void
   onOk: () => void
 }
 
 const AddClassify = (props: Props) => {
-  const { show, onClose, onOk } = props
+  const { type, show, onClose, onOk } = props
   const [form ] = Form.useForm()
 
   const footer = useMemo(() => {
@@ -38,7 +39,7 @@ const AddClassify = (props: Props) => {
     <Modal
       title={
         <div className={classNames("add-classify-title")}>
-          <span>新增分类</span>
+          <span>{ type === "add" ? "新增分类" : "编辑分类"} </span>
         </div>
       }
       width={560}

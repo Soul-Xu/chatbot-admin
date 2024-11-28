@@ -10,6 +10,29 @@ import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
+const dataSource = [
+  {
+    id: '3',
+    key: '3',
+    question: '日常流程问答',
+    answer: '答案1',
+    createByName: '陈洪',
+    createTime: '2022.03.22 16:47:22',
+    fdUseCount: '49',
+    fdStatus: '已生效'
+  },
+  {
+    id: '4',
+    key: '4',
+    question: '日常流程问答',
+    answer: '答案1',
+    createByName: '陈洪',
+    createTime: '2022.03.22 16:47:22',
+    fdUseCount: '49',
+    fdStatus: '已生效'
+  },
+]
+
 const initialParmas = {
   pageSize: 10,
   pageNo: 0,
@@ -24,7 +47,7 @@ const FaqList = () => {
   const [queryParams, setQueryParams] = useState(initialParmas)
   // const [totalCount, setTotalCount] = useState<any>(0)
 
-    // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
+  // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
   const pagination = {
     current: queryParams.pageNo / queryParams.pageSize + 1,
     pageSize: queryParams.pageSize,
@@ -70,29 +93,6 @@ const FaqList = () => {
       dataIndex: 'fdStatus',
       key: 'fdStatus'
     }
-  ]
-
-  const dataSource = [
-    {
-      id: '3',
-      key: '3',
-      question: '日常流程问答',
-      answer: '答案1',
-      createByName: '陈洪',
-      createTime: '2022.03.22 16:47:22',
-      fdUseCount: '49',
-      fdStatus: '已生效'
-    },
-    {
-      id: '4',
-      key: '4',
-      question: '日常流程问答',
-      answer: '答案1',
-      createByName: '陈洪',
-      createTime: '2022.03.22 16:47:22',
-      fdUseCount: '49',
-      fdStatus: '已生效'
-    },
   ]
 
   const handleRowClick = (record: any) => {

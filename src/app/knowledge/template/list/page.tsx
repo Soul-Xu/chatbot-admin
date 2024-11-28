@@ -1,14 +1,17 @@
-import React from "react"
+"use client"
+import React, { useEffect, useState } from "react"
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentUrl } from "@/lib/features/slices/urlSlice";
+import { getTemplateList } from "@/lib/features/slices/templateSlice";
 import { Breadcrumb, Table } from "antd"
 import Container from "@/app/components/container";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const data = [
+const dataSource = [
   {
     id: 1,
     key: 1,
@@ -74,9 +77,36 @@ const data = [
   },
 ]
 
+const initialParmas = {
+  pageSize: 10,
+  pageNo: 0,
+  searchCount: true,
+  offset: 0,
+  subject: '',
+  categoryId: ''
+}
+
 const TemplateList = () => {
   const router = useRouter()
   const dispatch = useDispatch()
+  const templateState = useSelector((state: any) => state.template);
+  const { templateList } = templateState;
+  const [queryParams, setQueryParams] = useState(initialParmas)
+
+   // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
+  const pagination = {
+    current: queryParams.pageNo / queryParams.pageSize + 1,
+    pageSize: queryParams.pageSize,
+    total: templateList.totalCount,
+    showTotal: (total: number) => `共 ${total} 条`,
+    onChange: (page: number, pageSize: number) => {
+      const newOffset = (page - 1) * pageSize // 计算新的偏移量
+      const newQueryParams = { ...queryParams, pageSize, offset: newOffset }
+      setQueryParams(newQueryParams) // 更新查询参数
+      // @ts-ignore
+      dispatch(getTemplateList(newQueryParams))
+    }
+  }
 
   const columns = [
     {
@@ -111,6 +141,19 @@ const TemplateList = () => {
     dispatch(setCurrentUrl('knowledge/template/view'))
   }
 
+  useEffect(() => {
+    const params = {
+      pageSize: 10,
+      pageNo: 0,
+      searchCount: true,
+      offset: 0,
+      subject: '',
+      categoryId: ''
+    }
+    // @ts-ignore
+    dispatch(getTemplateList(params));
+  }, [])
+
   return (
     <div className={classNames("templateList")}>
       <Container>
@@ -118,10 +161,10 @@ const TemplateList = () => {
           <Breadcrumb
             items={[
               {
-                title: <a href="" style={{ color: '#000'}}>数字化办公室</a>,
+                title: <Link href="" style={{ color: '#000'}}>数字化办公室</Link>,
               },
               {
-                title: '金科中心常用',
+                title: <Link href="/knowledge/template/list" style={{ color: '#000'}}>金科中心常用</Link>,
               },
             ]}
           />
@@ -129,7 +172,8 @@ const TemplateList = () => {
         <div className={classNames("main-table")}>
           <Table 
             columns={columns} 
-            dataSource={data} 
+            dataSource={templateList.data || dataSource} 
+            pagination={pagination}
             onRow={(record) => {
               return {
                 onClick: () => {

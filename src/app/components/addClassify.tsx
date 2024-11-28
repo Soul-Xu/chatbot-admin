@@ -1,6 +1,5 @@
-"use client"
 import React, { useMemo } from "react"
-import { Modal, Button, Form, Input, Select } from "antd"
+import { Modal, Button, Form, Input, InputNumber } from "antd"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -11,13 +10,13 @@ interface Props {
   onOk: () => void
 }
 
-const AddTag = (props: Props) => {
+const AddClassify = (props: Props) => {
   const { show, onClose, onOk } = props
   const [form ] = Form.useForm()
 
   const footer = useMemo(() => {
     return (
-      <div className={classNames("add-tag-footer")}>
+      <div className={classNames("add-classify-footer")}>
         <Button 
           className={classNames("footer-cancel")}
           onClick={onClose}
@@ -38,48 +37,39 @@ const AddTag = (props: Props) => {
   return (
     <Modal
       title={
-        <div className={classNames("add-tag-title")}>
-          <span>新增标签</span>
+        <div className={classNames("add-classify-title")}>
+          <span>新增分类</span>
         </div>
       }
       width={560}
       open={show}
       onCancel={onClose}
       // onOk={handleOk}
-      className={classNames("add-tag")}
+      className={classNames("add-classify")}
       footer={footer}
     >
       <Form
         layout={"vertical"}
         form={form}
-        className={classNames("add-tag-content")}
+        className={classNames("add-classify-content")}
       >
         <Form.Item 
-          label="标签名" 
+          label="分类名称" 
           required
           className={classNames("form-item-label")}
         >
-          <Input className={classNames("form-item-input")} placeholder="请输入" />
+          <Input className={classNames("form-item-input")}  placeholder="请输入" />
         </Form.Item>
         <Form.Item 
-          label="同义标签" 
-          className={classNames("form-item-label")}
-        >
-          <Input disabled className={classNames("form-item-input")} placeholder="请输入" />
-        </Form.Item>
-        <Form.Item 
-          label="标签分类" 
+          label="排序" 
           required
           className={classNames("form-item-label")}
         >
-          <Select className={classNames("form-item-select")}>
-            <Select.Option value="1">类型1</Select.Option>
-            <Select.Option value="2">类型2</Select.Option>
-          </Select>
+          <InputNumber min={1} className={classNames("form-item-input")}  placeholder="请输入" />
         </Form.Item>
       </Form>
     </Modal>
   )
 }
 
-export default AddTag
+export default AddClassify

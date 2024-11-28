@@ -17,7 +17,6 @@ import AddTagModal from "@/app/components/addTag/page";
 import { treeData } from "@/app/constants/mock"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
-import { useRouter } from 'next/router';
 const classNames = classnames.bind(styles);
 
 const tagList = [
@@ -110,7 +109,7 @@ const AddFaq = () => {
     } else {
       setCurType("add");
     }
-  }, [currentUrl, dispatch]);
+  }, [currentUrl]);
 
   useEffect(() => {
     if (curType === "edit" && faqId) {

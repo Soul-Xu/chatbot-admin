@@ -170,7 +170,7 @@ const AddTag = (props: Props) => {
         </div>
       }
       width={760}
-      visible={show}
+      open={show}
       onCancel={onClose}
       // onOk={handleOk}
       className={classNames("add-tag")}

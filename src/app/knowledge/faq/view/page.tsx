@@ -1,9 +1,10 @@
 "use client"
 import React, { useEffect } from "react"
+import Link from "next/link";
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { getFaqDetail } from "@/lib/features/slices/faqSlice";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Breadcrumb, Button, Dropdown } from "antd"
 import type { MenuProps } from 'antd';
 import Container from "../../../components/container";
@@ -30,6 +31,10 @@ const FaqView = () => {
     console.log('click left button', e);
   };
 
+  const handleLinkClick = (url: string) => {
+    dispatch(setCurrentUrl(url));
+  }
+
   const items: MenuProps['items'] = [
   {
     label: '1st menu item',
@@ -46,10 +51,9 @@ const FaqView = () => {
   };
 
   const handleEditClick = () => {
-    console.log('2', window.location.href)
     const currenId = window.location.href.split('?')[1].split('=')[1];
     router.push(`#/knowledge/faq/edit?id=${currenId}`);
-    dispatch(setCurrentUrl('/knowledge/faq/edit'));
+    dispatch(setCurrentUrl('knowledge/faq/edit'));
   }
 
   useEffect(() => {
@@ -64,10 +68,17 @@ const FaqView = () => {
           <Breadcrumb
             items={[
               {
-                title: <a href="" style={{ color: '#000'}}>数字化办公室</a>,
+                title: <Link href="" style={{ color: '#000'}}>数字化办公室</Link>,
               },
               {
-                title: '金科中心常用',
+                title: 
+                  <Link 
+                    href="#/knowledge/faq/list" 
+                    style={{ color: '#000'}}
+                    onClick={() => handleLinkClick('knowledge/faq/list')}
+                  >
+                    金科中心常用
+                  </Link>,
               },
             ]}
           />

@@ -1,6 +1,8 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { UserOutlined } from '@ant-design/icons';
 import ImgHomeIcon from '@/public/images/home-icon.png'
 import ImgKnowledgeIcon from '@/public/images/knowledge-icon.png'
@@ -31,9 +33,10 @@ const { Header, Content, Footer, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 const App: React.FC = () => {
+  const dispatch = useDispatch();
   const [currentKey, setCurrentKey] = useState('knowledge')
   const router = useRouter();
-  const pathname = usePathname();
+  const curHash = window.location.hash;
 
   // 根据README.md内容定义菜单项
   const items: MenuItem[] = [
@@ -53,9 +56,21 @@ const App: React.FC = () => {
 
   // 使用 useEffect 监听路由变化
   useEffect(() => {
-    const hash = pathname.split('#/')[1];
-    hash && setCurrentKey(hash); // 当路由变化时更新状态
-  }, [pathname]);
+    const hash = curHash.replace('#/', '');
+    dispatch(setCurrentUrl(hash));
+
+    // 使用对象映射来简化条件判断
+    const keyMap = {
+      knowledge: 'knowledge',
+      tag: 'tag',
+      statistics: 'statistics',
+      setting: 'setting'
+    };
+
+    // 默认设置为 'knowledge'
+    // @ts-ignore
+    setCurrentKey(keyMap[hash.split('/')[0]] || 'knowledge');
+  }, [curHash]);
 
   // 根据路由渲染不同组件
   const renderContent = () => {
@@ -88,7 +103,15 @@ const App: React.FC = () => {
       </Header>
       <Layout>
         <Sider className={classNames("sider")} theme='light' width={64}>
-          <Menu className={classNames("sider-menu")} theme="light" defaultSelectedKeys={[currentKey]} mode="vertical" items={items} onClick={handleMenuClick} />
+          <Menu 
+            className={classNames("sider-menu")} 
+            theme="light" 
+            defaultSelectedKeys={[currentKey]} 
+            selectedKeys={[currentKey]}
+            mode="vertical" 
+            items={items} 
+            onClick={handleMenuClick}
+          />
         </Sider>
         <Layout>
           <Content className={classNames("content")}>

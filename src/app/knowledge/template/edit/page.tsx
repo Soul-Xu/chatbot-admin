@@ -1,23 +1,22 @@
 "use client"
 import React from "react"
 import Container from "../../../components/container";
-import AddFaq from "../add/page";
+import AddTemplate from "../add/page";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const FaqEdit = () => {
-
+const TemplateEdit = () => { 
   return (
-    <div className={classNames("faqEdit")}>
+    <div className={classNames("templateEdit")}>
       <Container>
         <div className={classNames("main-content")}>
-          <AddFaq /> 
+          <AddTemplate /> 
         </div>
       </Container>
     </div>
   )
 }
 
-export default FaqEdit
+export default TemplateEdit
 

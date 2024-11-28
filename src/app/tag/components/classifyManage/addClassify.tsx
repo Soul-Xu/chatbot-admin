@@ -42,7 +42,7 @@ const AddClassify = (props: Props) => {
         </div>
       }
       width={560}
-      visible={show}
+      open={show}
       onCancel={onClose}
       // onOk={handleOk}
       className={classNames("add-classify")}
@@ -55,6 +55,13 @@ const AddClassify = (props: Props) => {
       >
         <Form.Item 
           label="分类名称" 
+          required
+          className={classNames("form-item-label")}
+        >
+          <Input className={classNames("form-item-input")}  placeholder="请输入" />
+        </Form.Item>
+        <Form.Item 
+          label="排序" 
           required
           className={classNames("form-item-label")}
         >

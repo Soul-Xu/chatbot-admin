@@ -151,7 +151,6 @@ export const getFaqList = createAsyncThunk<FaqList, void, { rejectValue: FetchFa
 export const getFaqDetail = createAsyncThunk<FaqDetail, void, { rejectValue: FetchFaqError }>(
   'getFaqDetail',
   async (id, { rejectWithValue }) => {
-    console.log("getFaqDetail", id)
     try {
       const response = await axiosClient.get(`/faq/get/${id}`);
       return response.data;
@@ -162,7 +161,7 @@ export const getFaqDetail = createAsyncThunk<FaqDetail, void, { rejectValue: Fet
   }
 )
 
-// faq列表
+// faq新增
 export const faqAdd= createAsyncThunk<FaqAdd, void, { rejectValue: FetchFaqError }>(
   'faqAdd',
   async (params, { rejectWithValue }) => {
@@ -180,7 +179,7 @@ export const faqAdd= createAsyncThunk<FaqAdd, void, { rejectValue: FetchFaqError
   }
 )
 
-// faq列表
+// faq编辑
 export const faqUpdate = createAsyncThunk<FaqUpdate, void, { rejectValue: FetchFaqError }>(
   'faqUpdate',
   async (params, { rejectWithValue }) => {
@@ -199,9 +198,11 @@ export const faqUpdate = createAsyncThunk<FaqUpdate, void, { rejectValue: FetchF
 )
 
 const initialState = {
-  faqTree: {},
+  faqTree: [],
   faqList: {},
   faqDetail: {},
+  faqAdd: {},
+  faqUpdate: {},
   status: '',
   error: null as FetchFaqError | null,
   selectedNode: null // 新增状态来存储选中的节点信息
@@ -213,8 +214,7 @@ export const faqSlice = createSlice({
   // 定义同步的reducers
   reducers: {
     // 这里可以添加一些同步的reducers
-    selectNode: (state, action) => {
-      console.log('selectNode action:',  action)
+    selectFaqNode: (state, action) => {
       state.selectedNode = action.payload; // 更新选中节点的状态
     },
   },
@@ -227,7 +227,8 @@ export const faqSlice = createSlice({
       })
       .addCase(getFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.faqTree = action.payload.data; // 使用返回的数据中的data字段
+        // @ts-ignore
+        state.faqTree = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getFaqTree.rejected, (state, action) => {
         state.status = 'failed';
@@ -236,14 +237,22 @@ export const faqSlice = createSlice({
       })
       .addCase(getFaqList.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.faqList = action.payload.data; // 使用返回的数据中的data字段
+        state.faqList = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getFaqDetail.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.faqDetail = action.payload.data; // 使用返回的数据中的data字段
+        state.faqDetail = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(faqAdd.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.faqAdd = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(faqUpdate.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.faqUpdate = action?.payload?.data; // 使用返回的数据中的data字段
       })
   },
 });
 
-export const { selectNode } = faqSlice.actions; // 导出 selectNode action
+export const { selectFaqNode } = faqSlice.actions; // 导出 selectFaqNode action
 export default faqSlice.reducer;

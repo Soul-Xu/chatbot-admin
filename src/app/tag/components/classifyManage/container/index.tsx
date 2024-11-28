@@ -1,33 +1,20 @@
 "use client"
 import React, { useState, useEffect } from "react"
-import Link from "next/link"
 import Image from "next/image"
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { selectFaqNode, getFaqTree } from '@/lib/features/slices/faqSlice'
 import { selectTemplateNode, getTemplateTree } from '@/lib/features/slices/templateSlice'
-import ImgBackIcon from "@/public/images/back-icon.png"
+import AddClassify from "../addClassify";
 import ImgAddIcon from "@/public/images/add-icon.png"
-import { Tree, Dropdown, Menu, Button, Input, Tooltip } from "antd"
+import { Tree, Button, Input, Tooltip } from "antd"
 import type { TreeDataNode } from 'antd';
-import { CarryOutOutlined, FormOutlined } from '@ant-design/icons';
-import AddClassify from "./addClassify";
+import { CarryOutOutlined, CheckOutlined, FormOutlined } from '@ant-design/icons';
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 interface Props {
   children: React.ReactNode
-}
-
-const titleMap = {
-  'faq': {
-    title: 'FAQ库',
-    desc: 'FAQ库用于管理《填单指引》《流程问题自动回复》两个场景下的相关知识库。FAQ库中的知识主要包含“运维流程相关的常见问题、流程表单填写指引”等内容；知识来源主要依赖人工整理。'
-  },
-  'template': {
-    title: '流程模板知识库',
-    desc: '流程模板知识库用于管理《智能启动流程实例》场景下的相关知识。流程模板知识库中的知识主要是“流程模板、相关流程描述”等内容；数据从IT运维管理系统中同步流程模板后，需要在知识库中补充完善流程描述信息。'
-  }
 }
 
 const mockTreeData: TreeDataNode[] = [
@@ -100,25 +87,9 @@ const Container = (props: Props) => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
   const faqState = useSelector((state: any) => state.faq);
-  const [treeData, setTreeData] = useState<any>([]);
   const { faqTree, status, error } = faqState;
-  const curUrl = window.location.href;
-  const [mainCard, setMainCard] = useState(titleMap['faq']);
+  const [treeData, setTreeData] = useState<any>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-
-  // 点击新增知识
-  const handleAddKnowledge = () => {
-    if (currentUrl?.includes('faq')) {
-      dispatch(setCurrentUrl('knowledge/faq/add'))
-    } else {
-      dispatch(setCurrentUrl('knowledge/template/add'))
-    }
-  }
-
-  // 点击返回
-  const handleBack = () => {
-    dispatch(setCurrentUrl('knowledge'))
-  }
 
   // 点击新增树
   const handleAddIcon = () => {
@@ -135,57 +106,10 @@ const Container = (props: Props) => {
     }
   };
 
-  // 头部区右侧操作按钮
-  const renderListAction = () => {
-    return (
-     <div className={classNames("container-header-right")}>
-      <div className={classNames("container-header-right-action")}>
-        {/* <Button type="link" className={classNames("btn-link")}>
-          <Image src={ImgTemplateIcon} alt="template" width={14} height={14} />
-          <span>导入模版</span>
-        </Button>
-        <Button className={classNames("btn-default")}>
-          导入知识
-        </Button> */}
-        {
-          !currentUrl?.includes('base') && (
-            <Link 
-              href={ 
-                currentUrl?.includes('faq') ? '#/knowledge/faq/add' : '#/knowledge/template/add'
-              } 
-              onClick={handleAddKnowledge}>
-              <Button className={classNames("btn-action")}>
-                新增知识
-              </Button>
-            </Link>
-          )
-        }
-      </div>
-    </div>
-    )
-  }
-
-  // 示例：处理节点点击事件
-  const handleMenuClick = (e:any) => {
-    console.log('click', e);
-    // 这里可以添加编辑或删除的逻辑
-  };
-
   // 内容区左侧树形结构
   useEffect(() => {
     setTreeData(mockTreeData);
   }, [faqTree]);
-
-  // 标题映射
-  useEffect(() => {
-    const hasUrl = currentUrl || curUrl 
-      // 检查currentUrl中是否包含关键字
-    if (hasUrl?.includes('faq')) {
-      setMainCard(titleMap.faq);
-    } else if (hasUrl?.includes('template')) {
-      setMainCard(titleMap.template);
-    }
-  }, [currentUrl, curUrl])
 
   useEffect(() => {
     const params = {
@@ -203,32 +127,11 @@ const Container = (props: Props) => {
  
   return (
     <div className={classNames("container")}>
-      <div className={classNames("container-header")}>
-        <div className={classNames("container-header-left")}>
-          <div className={classNames("container-header-left-icon")}>
-            <Link href="#/knowledge" onClick={handleBack}>
-              <Button className={classNames("icon-btn")}>
-                <Image src={ImgBackIcon} alt="back-icon" width={12} height={12} />
-              </Button>
-            </Link>
-          </div>
-          <div className={classNames("container-header-left-title")}>{mainCard.title}</div>
-          <div className={classNames("container-header-left-description")}>
-            <div className={classNames("description-title")}>子库描述</div>
-            <div className={classNames("description-content")}>
-              <Tooltip title={mainCard.desc}>
-                {mainCard.desc}
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-        { renderListAction() }
-      </div>
       <div className={classNames("container-content")}>
         <div className={classNames("container-content-tree")}>
           <div className={classNames("tree-title")}>
             <span>目录</span>
-            <Button className={classNames("tree-title-btn")} onClick={handleAddIcon}>
+            <Button className={classNames("tree-title-btn")} onClick={handleAddIcon} >
               <Image src={ImgAddIcon} alt="add-icon" width={12} height={12} />
             </Button>
           </div>
@@ -247,14 +150,14 @@ const Container = (props: Props) => {
         <div className={classNames("container-content-main")}>
           { children }
         </div>
+        {showAddModal && (
+          <AddClassify
+            show={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onOk={() => setShowAddModal(false)}
+          />
+        )}
       </div>
-      {showAddModal && (
-        <AddClassify
-          show={showAddModal}
-          onClose={() => setShowAddModal(false)}
-          onOk={() => setShowAddModal(false)}
-        />
-      )}
     </div>
   )
 }

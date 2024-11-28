@@ -32,11 +32,12 @@ const AddTemplate = () => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
   const [form] = Form.useForm();
-  const [effectiveTime, setEffectiveTime] = useState(1)
   const [editorValue, setEditorValue] = useState("")
   const [curType, setCurType] = useState<any>("add")
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [showAddTagModal, setShowAddTagModal] = useState(false)
   const [selectTags, setSelectTags] = useState<any>([])
+  const currentType = window.location.hash.replace(/^#\/?/, '')
 
   const [value, setValue] = useState<string>();
 
@@ -61,12 +62,19 @@ const AddTemplate = () => {
   }
 
   useEffect(() => {
-    if (currentUrl && currentUrl.includes('edit')) {
-      setCurType("edit")
+    const currentType = window.location.hash.replace(/^#\/?/, '')
+    if (currentType && currentType.includes('edit')) {
+      setCurType("edit");
+      const id = currentUrl.split('/').pop();
+      if (id) {
+        setTemplateId(id);
+        // @ts-ignore
+        dispatch(getFaqDetail(id));
+      }
     } else {
       setCurType("add")
     }
-  }, [currentUrl])
+  }, [currentType])
 
   return (
     <div className={classNames("addTemplate")}>

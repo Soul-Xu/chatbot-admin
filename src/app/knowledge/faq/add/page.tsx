@@ -9,7 +9,7 @@ import { faqAdd, faqUpdate, getFaqDetail } from '@/lib/features/slices/faqSlice'
 import Image from "next/image"
 import ImgBackIcon from "@/public/images/back-icon.png"
 import { Button, Form, Radio, TreeSelect, DatePicker, Input, Tag } from "antd"
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import dayjs from 'dayjs'
 import type { TreeSelectProps } from 'antd';
@@ -96,6 +96,9 @@ const AddFaq = () => {
     }));
   };
 
+  const handleTagClose = (tag:any) => {
+    console.log('handleTagClose', tag)
+  }
 
   useEffect(() => {
     if (currentUrl && currentUrl.includes('edit')) {
@@ -144,6 +147,17 @@ const AddFaq = () => {
   useEffect(() => {
     form.setFieldValue('effectiveType', formValues.effectiveType)
   }, [])
+
+  // 表单校验规则
+  const validateRules = {
+    category: [{ required: true, message: '请选择问题类型' }],
+    effectiveType: [{ required: true, message: '请选择生效时间' }],
+    effectiveBeginTime: [{ required: formValues.effectiveType === "CUSTOM", message: '请选择起始时间' }],
+    effectiveEndTime: [{ required: formValues.effectiveType === "CUSTOM", message: '请选择结束时间' }],
+    question: [{ required: true, message: '请输入问题' }],
+    answer: [{ required: true, message: '请输入内容' }],
+    tagList: [{ required: true, message: '请选择知识标签' }],
+  };
 
   const onFinish = async () => {
     form.validateFields();
@@ -209,7 +223,8 @@ const AddFaq = () => {
           <Form.Item
             label="问题类型"
             name="category"
-            rules={[{ required: true, message: '请选择问题类型' }]}
+            // rules={[{ required: true, message: '请选择问题类型' }]}
+            rules={validateRules.category}
           >
             <TreeSelect
               showSearch
@@ -228,7 +243,8 @@ const AddFaq = () => {
           <Form.Item
             label="生效时间"
             name="effectiveType"
-            rules={[{ required: true, message: '请选择生效时间' }]}
+            // rules={[{ required: true, message: '请选择生效时间' }]}
+            rules={validateRules.effectiveType}
           >
             <Radio.Group 
               defaultValue={1} 
@@ -239,11 +255,12 @@ const AddFaq = () => {
               <Radio value={"CUSTOM"}>自定义</Radio>
             </Radio.Group>
           </Form.Item>
-          {formValues.effectiveType === "CUSTOM" && (
+          {/* {formValues.effectiveType === "CUSTOM" && (
             <Form.Item
               label="起始时间"
               name="startTime"
-              rules={[{ required: true, message: '起始时间' }]}
+              // rules={[{ required: true, message: '起始时间' }]}
+              rules={validateRules.effectiveBeginTime}
             >
               <div className={classNames("form-time")}>
                 <DatePicker 
@@ -263,15 +280,45 @@ const AddFaq = () => {
                 />
               </div>
             </Form.Item>
+          )} */}
+          {formValues.effectiveType === "CUSTOM" && (
+            <Form.Item
+              label="起始时间"
+              name="effectiveBeginTime"
+              rules={validateRules.effectiveBeginTime}
+            >
+              <DatePicker
+                // ... other props
+              />
+            </Form.Item>
+          )}
+          {formValues.effectiveType === "CUSTOM" && (
+            <Form.Item
+              label="结束时间"
+              name="effectiveEndTime"
+              rules={validateRules.effectiveEndTime}
+            >
+              <DatePicker
+                // ... other props
+              />
+            </Form.Item>
           )}
           <Form.Item
             label="知识标签"
             name="fdTag"
-            rules={[{ required: true, message: '请选择知识标签' }]}
+            // rules={[{ required: true, message: '请选择知识标签' }]}
+            rules={validateRules.tagList}
           >
             { tagList.map((tag: any) => {
               return (
-                <Tag key={tag.id} className={classNames("form-tag")}>{tag.name}</Tag>
+                <Tag 
+                  key={tag.id} 
+                  className={classNames("form-tag")}
+                  closeIcon={<CloseCircleOutlined />}
+                  onClose={() => handleTagClose(tag)}
+                >
+                  {tag.name}
+                </Tag>
               )
             }) }
             <Button 
@@ -285,7 +332,8 @@ const AddFaq = () => {
           <Form.Item
             label="问题"
             name="question"
-            rules={[{ required: true, message: '请输入问题' }]}
+            // rules={[{ required: true, message: '请输入问题' }]}
+            rules={validateRules.question}
           >
             <Input 
               className={classNames("form-input")} 
@@ -297,7 +345,8 @@ const AddFaq = () => {
           <Form.Item
             label="内容"
             name="answer"
-            rules={[{ required: true, message: '请输入内容' }]}
+            // rules={[{ required: true, message: '请输入内容' }]}
+            rules={validateRules.answer}
           >
             {/* 富文本编辑器 */}
             <ReactQuill

@@ -36,8 +36,8 @@ const Container = (props: Props) => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
   const faqState = useSelector((state: any) => state.faq);
+  const { faqTree } = faqState;
   const [treeData, setTreeData] = useState<any>([]);
-  const { faqTree, status, error } = faqState;
   const curUrl = window.location.href;
   const [mainCard, setMainCard] = useState(titleMap['faq']);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -86,7 +86,7 @@ const Container = (props: Props) => {
 
     // 定义 Tooltip 的样式，调整其宽度
     const tooltipOverlayStyle = {
-      width: '208px', // 设置 Tooltip 的最大宽度
+      maxWidth: '208px', // 设置 Tooltip 的最大宽度
       borderRadius: '6px',
       overflow: 'hidden', // 确保内容不会溢出
     };
@@ -106,59 +106,6 @@ const Container = (props: Props) => {
     );
   };
 
-
-  const mockTreeData: TreeDataNode[] = [
-    {
-      title: "parent",
-      key: '0-0',
-      icon: <CarryOutOutlined />,
-      children: [
-        {
-          title: 'parent 1-0',
-          key: '0-0-0',
-          icon: <CarryOutOutlined />,
-          children: [
-            { title: 'leaf', key: '0-0-0-0', icon: <CarryOutOutlined /> },
-            { title: 'leaf', key: '0-0-0-2', icon: <CarryOutOutlined /> },
-          ],
-        },
-        {
-          title: 'parent 1-1',
-          key: '0-0-1',
-          children: [{ title: 'leaf', key: '0-0-1-0', icon: <CarryOutOutlined /> }],
-        },
-        {
-          title: 'parent 1-2',
-          key: '0-0-2',
-          icon: <CarryOutOutlined />,
-          children: [
-            { title: 'leaf', key: '0-0-2-0', icon: <CarryOutOutlined /> },
-            {
-              title: 'leaf',
-              key: '0-0-2-1',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'parent 2',
-      key: '0-1',
-      icon: <CarryOutOutlined />,
-      children: [
-        {
-          title: 'parent 2-0',
-          key: '0-1-0',
-          icon: <CarryOutOutlined />,
-          children: [
-            { title: 'leaf', key: '0-1-0-0', icon: <CarryOutOutlined /> },
-            { title: 'leaf', key: '0-1-0-1', icon: <CarryOutOutlined /> },
-          ],
-        },
-      ],
-    },
-  ];
-
   // 定义一个函数来递归地修改树形数据的 title
   const updateTreeTitles = (nodes:any) => {
     return nodes.map((node: any) => {
@@ -172,10 +119,6 @@ const Container = (props: Props) => {
     });
   };
 
-  // 使用 updateTreeTitles 函数更新 mockTreeData
-  const updatedMockTreeData = updateTreeTitles(mockTreeData);
-
-
   // 点击新增知识
   const handleAddKnowledge = () => {
     if (currentUrl?.includes('faq')) {
@@ -183,11 +126,6 @@ const Container = (props: Props) => {
     } else {
       dispatch(setCurrentUrl('knowledge/template/add'))
     }
-  }
-
-  // 点击树形节点中按钮
-  const handleTreeBtnClick = (node: any) => {
-    console.log('handleTreeBtnClick', node)
   }
 
   // 点击返回
@@ -200,14 +138,76 @@ const Container = (props: Props) => {
     setShowAddModal(true);
   }
 
+ // Helper function to add parent property to each node
+  const addParentToTreeData = (data: any, parent: any) => {
+    return data.map((item: any) => {
+      const node = {
+        ...item,
+        parent, // Set the parent of the current node
+        children: item.children ? addParentToTreeData(item.children, item) : undefined,
+      };
+      return node;
+    });
+  };
+
+  const createNodesMap = (data: any): Map<string, any> => {
+  const map = new Map();
+
+  const recursiveMap = (items: any[]) => {
+      items.forEach((item) => {
+        map.set(item.id, item);
+        if (item.children) {
+          recursiveMap(item.children);
+        }
+      });
+    };
+
+    recursiveMap(data);
+    return map;
+  };
+
+  // 在useEffect 或其他适当的时机创建节点映射
+  const nodesMap = createNodesMap(treeData);
+
+  // onSelect function with additional console.log for debugging
   const onSelect = (selectedKeys: React.Key[], info: any) => {
-    console.log('selected', selectedKeys, info);
-    // 调用 action 来更新选中的节点信息
-    if (currentUrl?.includes('faq')) {
-      dispatch(selectFaqNode(info.node));
-    } else {
-      dispatch(selectTemplateNode(info.node));
+    console.log('selectedKeys', selectedKeys); // Debug: Check selected keys
+    console.log('info', info); // Debug: Check the info object
+
+    // Check if info.node is defined
+    if (!info.node) {
+      console.error('info.node is undefined. onSelect function may not be called correctly.');
+      return;
     }
+
+    // 构建节点路径数组
+    const nodePath = buildNodePath(info.node, nodesMap);
+    console.log('nodePath', nodePath);
+
+    // 更新 Redux 中的选中节点路径
+    if (currentUrl?.includes('faq')) {
+      dispatch(selectFaqNode({ ...info.node, nodePath }));
+    } else {
+      dispatch(selectTemplateNode({ ...info.node, nodePath }));
+    }
+  };
+
+  // Adjust the buildNodePath function to handle the case where parent is null
+  const buildNodePath = (node: any, nodesMap: Map<string, any> = new Map()): string[] => {
+    let path = [];
+
+    // 如果当前节点有 name 属性，则添加到路径数组
+    if (node.name) {
+      path.unshift(node.name);
+    }
+
+    // 如果当前节点有父节点 ID，并且节点映射中存在该父节点，则递归构建路径
+    if (node.parentId && nodesMap.has(node.parentId)) {
+      const parentNode = nodesMap.get(node.parentId);
+      path = buildNodePath(parentNode, nodesMap).concat(path);
+    }
+
+    return path;
   };
 
   // 头部区右侧操作按钮
@@ -240,9 +240,29 @@ const Container = (props: Props) => {
     )
   }
 
-  // 内容区左侧树形结构
+  // Helper function to convert faqList to TreeDataNode format
+  const convertToTreeData = (data: any) => {
+    return data?.map((item:any) => {
+      const node = {
+        title: item.name,
+        key: item.id,
+        children: item.children ? convertToTreeData(item.children) : undefined,
+      };
+      // 更新节点标题以包含下拉菜单
+      node.title = <DropdownWithTitle title={node.title} />;
+      return node;
+    });
+  };
+
+  // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
   useEffect(() => {
-    setTreeData(updatedMockTreeData);
+    if (Array.isArray(faqTree)) {
+      const treeDataWithParent = addParentToTreeData(faqTree, null);
+      const treeDataFromFaqList = convertToTreeData(treeDataWithParent);
+      setTreeData(treeDataFromFaqList);
+    } else {
+      setTreeData([]);
+    }
   }, [faqTree]);
 
   // 标题映射
@@ -261,14 +281,14 @@ const Container = (props: Props) => {
       parentId: '',
       name: '',
     }
-    if (currentUrl?.includes('faq')) {
+    if (curUrl?.includes('faq')) {
       // @ts-ignore
       dispatch(getFaqTree(params))
     } else {
       // @ts-ignore
       dispatch(getTemplateTree(params))
     }
-  }, [])
+  }, [curUrl])
  
   return (
     <div className={classNames("container")}>

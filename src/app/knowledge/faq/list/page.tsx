@@ -51,7 +51,7 @@ const FaqList = () => {
   const pagination = {
     current: queryParams.pageNo / queryParams.pageSize + 1,
     pageSize: queryParams.pageSize,
-    total: faqList.totalCount,
+    // total: faqList?.totalCount,
     showTotal: (total: number) => `共 ${total} 条`,
     onChange: (page: number, pageSize: number) => {
       const newOffset = (page - 1) * pageSize // 计算新的偏移量
@@ -103,8 +103,8 @@ const FaqList = () => {
   useEffect(() => {
     const params = {
       pageSize: 10,
-      pageNo: 0,
-      question: '',
+      pageNo: 1,
+      // question: '',
     }
     // @ts-ignore
     dispatch(getFaqList(params));
@@ -128,7 +128,7 @@ const FaqList = () => {
         <div className={classNames("main-table")}>
           <Table 
             columns={columns} 
-            dataSource={faqList.data || dataSource} 
+            dataSource={dataSource} 
             pagination={pagination}
             onRow={(record) => {
               return {

@@ -263,7 +263,8 @@ const initialState = {
   faqUpdate: {},
   status: '',
   error: null as FetchFaqError | null,
-  selectedNode: null // 新增状态来存储选中的节点信息
+  selectedNode: null, // 新增状态来存储选中的节点信息
+  selectedNodePath: [] // 存储选中节点的路径
 }
 
 export const faqSlice = createSlice({
@@ -274,6 +275,9 @@ export const faqSlice = createSlice({
     // 这里可以添加一些同步的reducers
     selectFaqNode: (state, action) => {
       state.selectedNode = action.payload; // 更新选中节点的状态
+    },
+    setSelectedNodePath: (state, action) => {
+      state.selectedNodePath = action.payload.nodePath;
     },
   },
   // 定义异步的reducers
@@ -287,6 +291,7 @@ export const faqSlice = createSlice({
         state.status = 'succeeded';
         // @ts-ignore
         state.faqTree = action?.payload?.data; // 使用返回的数据中的data字段
+        console.log('state.faqTree', state.faqTree)
       })
       .addCase(getFaqTree.rejected, (state, action) => {
         state.status = 'failed';

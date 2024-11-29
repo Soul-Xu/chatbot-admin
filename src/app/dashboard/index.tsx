@@ -6,7 +6,7 @@ const classNames = classnames.bind(styles);
 const Dashboard = () => {
   return (
     <div>
-      首页 - 1111
+      首页
     </div>
   );
 };

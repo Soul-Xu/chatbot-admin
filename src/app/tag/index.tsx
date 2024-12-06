@@ -1,4 +1,4 @@
-"use client"
+
 import React, { useState } from 'react';
 import Image from "next/image"
 import ImgTemplateIcon from "@/public/images/template-icon.png"

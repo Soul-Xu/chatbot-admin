@@ -1,20 +1,22 @@
 "use client"
 import React, { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import KnowledgeList from './list';
 // FAQ库
-import FaqList from './faq/list/page';
-import FaqView from './faq/view/page';
-import FaqEdit from './faq/edit/page';
-import AddFaq from './faq/add/page'
+import FaqList from './faq/list';
+import FaqView from './faq/view';
+import FaqEdit from './faq/edit';
+import AddFaq from './faq/add'
+// 动态导入无法在服务器端渲染的组件
 // 流程实例知识库
-import BaseList from './base/list/page';
-import BaseView from './base/view/page';
+import BaseList from './base/list';
+import BaseView from './base/view';
 // 流程模版知识库
-import TemplateList from './template/list/page';
-import TemplateView from './template/view/page';
-import TemplateEdit from './template/edit/page';
-import AddTemplate from './template/add/page';
+import TemplateList from './template/list';
+import TemplateView from './template/view';
+// import TemplateEdit from './template/edit/page';
+// import AddTemplate from './template/add/page';
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -25,7 +27,11 @@ const Knowledge = () => {
   // 当前页面上的url
   const [curUrl, setCurUrl] = useState(() => {
     // 初始状态使用当前URL的hash
-    return window.location.hash.replace(/^#\/?/, '');
+    if (typeof window !== 'undefined') {
+      return window.location.hash.replace(/^#\/?/, '')
+    } else {
+      return '/'
+    }
   });
 
   const renderContent = useCallback(() => {
@@ -41,8 +47,8 @@ const Knowledge = () => {
       '/knowledge/base/view': BaseView,
       '/knowledge/template/list': TemplateList,
       '/knowledge/template/view': TemplateView,
-      '/knowledge/template/add': AddTemplate,
-      '/knowledge/template/edit': TemplateEdit
+      // '/knowledge/template/add': AddTemplate,
+      // '/knowledge/template/edit': TemplateEdit
     };
     // 获取curUrl中的路径部分，忽略查询参数
     const mainHost = curUrl.includes('?') ? curUrl.split('?')[0] : curUrl;

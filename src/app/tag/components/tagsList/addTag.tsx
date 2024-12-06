@@ -1,4 +1,4 @@
-"use client"
+
 import React, { useMemo } from "react"
 import { Modal, Button, Form, Input, Select } from "antd"
 import classnames from "classnames/bind";

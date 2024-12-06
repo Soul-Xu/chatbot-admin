@@ -254,17 +254,17 @@ export const faqUpdate = createAsyncThunk<FaqUpdate, void, { rejectValue: FetchF
 
 const initialState = {
   faqTree: [],
-  faqTreeAdd: {},
-  faqTreeUpdate: {},
-  faqTreeDelete: {},
-  faqList: {},
-  faqDetail: {},
-  faqAdd: {},
-  faqUpdate: {},
+  faqTreeAdd: null,
+  faqTreeUpdate: null,
+  faqTreeDelete: null,
+  faqList: null,
+  faqDetail: null,
+  faqAdd: null,
+  faqUpdate: null,
   status: '',
   error: null as FetchFaqError | null,
-  selectedNode: null, // 新增状态来存储选中的节点信息
-  selectedNodePath: [] // 存储选中节点的路径
+  nodePaths: [], // 存储树形结构对应的所有路径
+  selectedNode: null, // 存储当前选中的节点
 }
 
 export const faqSlice = createSlice({
@@ -273,11 +273,12 @@ export const faqSlice = createSlice({
   // 定义同步的reducers
   reducers: {
     // 这里可以添加一些同步的reducers
+    saveFaqNodePaths: (state, action) => {
+      state.nodePaths = action.payload; // 更新节点路径的状态
+    },
     selectFaqNode: (state, action) => {
       state.selectedNode = action.payload; // 更新选中节点的状态
-    },
-    setSelectedNodePath: (state, action) => {
-      state.selectedNodePath = action.payload.nodePath;
+      console.log('selectedNode', state.selectedNode)
     },
   },
   // 定义异步的reducers
@@ -291,7 +292,6 @@ export const faqSlice = createSlice({
         state.status = 'succeeded';
         // @ts-ignore
         state.faqTree = action?.payload?.data; // 使用返回的数据中的data字段
-        console.log('state.faqTree', state.faqTree)
       })
       .addCase(getFaqTree.rejected, (state, action) => {
         state.status = 'failed';
@@ -300,34 +300,41 @@ export const faqSlice = createSlice({
       })
       .addCase(addFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqTreeAdd = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(updateFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqTreeUpdate = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(deleteFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqTreeDelete = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getFaqList.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqList = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getFaqDetail.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqDetail = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(faqAdd.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqAdd = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(faqUpdate.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.faqUpdate = action?.payload?.data; // 使用返回的数据中的data字段
       })
   },
 });
 
-export const { selectFaqNode } = faqSlice.actions; // 导出 selectFaqNode action
+export const { saveFaqNodePaths, selectFaqNode } = faqSlice.actions; // 导出 selectFaqNode action
 export default faqSlice.reducer;

@@ -10,17 +10,16 @@ const classNames = classnames.bind(styles)
 
 type TransferItem = GetProp<TransferProps, 'dataSource'>[number]
 
+interface Props {
+  selectTags: any[];
+  show: boolean;
+  onClose: () => void;
+  onOk: (params: any) => void;
+}
 interface TreeTransferProps {
   dataSource: TreeDataNode[];
   targetKeys: TransferProps['targetKeys'];
   onChange: TransferProps['onChange'];
-}
-
-interface Props {
-  selectTags: any[]
-  show: boolean
-  onClose: () => void
-  onOk: (params: any) => void
 }
 
 // Customize Table Transfer

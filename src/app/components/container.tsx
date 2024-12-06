@@ -4,14 +4,12 @@ import Link from "next/link"
 import Image from "next/image"
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
-import { selectFaqNode, getFaqTree } from '@/lib/features/slices/faqSlice'
-import { selectTemplateNode, getTemplateTree } from '@/lib/features/slices/templateSlice'
+import { saveFaqNodePaths, selectFaqNode, getFaqTree } from '@/lib/features/slices/faqSlice'
+import { getTemplateTree } from '@/lib/features/slices/templateSlice'
 import ImgBackIcon from "@/public/images/back-icon.png"
 import ImgAddIcon from "@/public/images/add-icon.png"
 import { Tree, Dropdown, Menu, Button, Input, Tooltip } from "antd"
 import type { MenuProps } from 'antd';
-import type { TreeDataNode } from 'antd';
-import { CarryOutOutlined, FormOutlined } from '@ant-design/icons';
 import AddClassify from "./addClassify";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
@@ -36,19 +34,14 @@ const Container = (props: Props) => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
   const faqState = useSelector((state: any) => state.faq);
-  const { faqTree } = faqState;
+  const { faqTree, nodePaths } = faqState;
   const [treeData, setTreeData] = useState<any>([]);
-  const curUrl = window.location.href;
+  // const curUrl = window.location.href;
   const [mainCard, setMainCard] = useState(titleMap['faq']);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addType, setAddType] = useState('add');
 
-  const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('click left button', e);
-  };
-
   const handleMenuClick: MenuProps['onClick'] = (e) => {
-    console.log('click====menu', e);
     const keyValue = e.key
     if (keyValue === 'edit') {
       setAddType('edit')
@@ -92,17 +85,11 @@ const Container = (props: Props) => {
     };
 
     return (
-      <Tooltip 
-        placement="top"
-        title={title}
-        overlayStyle={tooltipOverlayStyle} // 使用内联样式
-      >
-        <Dropdown.Button menu={menuProps} onClick={handleButtonClick}>
-          <div className={classNames("tree-title")} style={titleStyle}>
-            {title}
-          </div>
-        </Dropdown.Button>
-      </Tooltip>
+      <Dropdown.Button menu={menuProps}>
+        <div className={classNames("tree-title")} style={titleStyle}>
+          {title}
+        </div>
+      </Dropdown.Button>
     );
   };
 
@@ -150,45 +137,26 @@ const Container = (props: Props) => {
     });
   };
 
-  const createNodesMap = (data: any): Map<string, any> => {
-  const map = new Map();
-
-  const recursiveMap = (items: any[]) => {
-      items.forEach((item) => {
-        map.set(item.id, item);
-        if (item.children) {
-          recursiveMap(item.children);
-        }
-      });
-    };
-
-    recursiveMap(data);
-    return map;
-  };
-
-  // 在useEffect 或其他适当的时机创建节点映射
-  const nodesMap = createNodesMap(treeData);
-
   // onSelect function with additional console.log for debugging
   const onSelect = (selectedKeys: React.Key[], info: any) => {
     console.log('selectedKeys', selectedKeys); // Debug: Check selected keys
-    console.log('info', info); // Debug: Check the info object
 
     // Check if info.node is defined
     if (!info.node) {
       console.error('info.node is undefined. onSelect function may not be called correctly.');
       return;
     }
+    if (selectedKeys.length > 0) {
+      // 构建节点路径数组
+      const selectedNodeInfo = nodePaths.find((item: any) => item.id === selectedKeys[0])
 
-    // 构建节点路径数组
-    const nodePath = buildNodePath(info.node, nodesMap);
-    console.log('nodePath', nodePath);
-
-    // 更新 Redux 中的选中节点路径
-    if (currentUrl?.includes('faq')) {
-      dispatch(selectFaqNode({ ...info.node, nodePath }));
-    } else {
-      dispatch(selectTemplateNode({ ...info.node, nodePath }));
+      // 更新 Redux 中的选中节点路径
+      if (currentUrl?.includes('faq')) {
+        // dispatch(selectFaqNode({ ...info.node, nodePath }));
+        dispatch(selectFaqNode(selectedNodeInfo));
+      } else {
+        // dispatch(selectTemplateNode({ ...info.node, nodePath }));
+    }
     }
   };
 
@@ -254,12 +222,43 @@ const Container = (props: Props) => {
     });
   };
 
+  // 将treeData转化成路径数组
+  const convertToNodePath = (treeData: any,) => {
+    // 初始化一个空数组来存储处理后的数据
+    let processedData:any = [];
+
+    // 遍历每个顶级节点
+    treeData.forEach((item:any) => {
+      // 检查是否有子节点
+      if (item.children && item.children.length > 0) {
+        // 遍历每个子节点
+        item.children.forEach((child:any) => {
+          // 创建新的对象来存储处理后的子节点信息
+          let childInfo = {
+            parentId: item.id,
+            id: child.id,
+            pathId: `${item.id}/${child.id}`,
+            path: `${item.name}/${child.name}`
+          };
+          // 将处理后的子节点信息添加到数组中
+          processedData.push(childInfo);
+        });
+      }
+    });
+
+    // 返回处理后的数据数组
+    return processedData;
+  }
+
   // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
   useEffect(() => {
     if (Array.isArray(faqTree)) {
-      const treeDataWithParent = addParentToTreeData(faqTree, null);
-      const treeDataFromFaqList = convertToTreeData(treeDataWithParent);
-      setTreeData(treeDataFromFaqList);
+      // 接口返回的树形结构转化成可以渲染的树形结构
+      const treeData = convertToTreeData(faqTree);
+      // 接口返回的树形结构转化成可以使用的路径结构
+      const nodePath = convertToNodePath(faqTree);
+      dispatch(saveFaqNodePaths(nodePath));
+      setTreeData(treeData);
     } else {
       setTreeData([]);
     }
@@ -267,6 +266,7 @@ const Container = (props: Props) => {
 
   // 标题映射
   useEffect(() => {
+    const curUrl = window.location.href;
     const hasUrl = currentUrl || curUrl 
       // 检查currentUrl中是否包含关键字
     if (hasUrl?.includes('faq')) {
@@ -274,9 +274,10 @@ const Container = (props: Props) => {
     } else if (hasUrl?.includes('template')) {
       setMainCard(titleMap.template);
     }
-  }, [currentUrl, curUrl])
+  }, [currentUrl])
 
   useEffect(() => {
+    const curUrl = window.location.href;
     const params = {
       parentId: '',
       name: '',
@@ -288,7 +289,7 @@ const Container = (props: Props) => {
       // @ts-ignore
       dispatch(getTemplateTree(params))
     }
-  }, [curUrl])
+  }, [])
  
   return (
     <div className={classNames("container")}>

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'http://81.69.218.11:9140/data/kms',
-  timeout: 1000,
+  baseURL: 'http://81.69.218.11:8080/aiagent/api/data/kms',
+  timeout: 10000, // 请求超时时间
   // 你可以在这里添加更多的配置
 });
 

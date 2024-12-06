@@ -1,4 +1,4 @@
-"use client"
+
 import React from "react"
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { Breadcrumb, Button, Dropdown } from "antd"

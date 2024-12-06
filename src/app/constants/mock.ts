@@ -49,3 +49,52 @@ export const treeData = [
     ],
   },
 ]
+
+const treeData2 = [
+  {
+    key: 'ff9e361ead5b4da4b216fc92d028b939',
+    title: {
+      '$$typeof': Symbol('react.element'),
+      key: null,
+      props: {
+        'title': '行政之窗',
+      },
+      ref: null,
+      children: [
+        {
+          key: '03f8d6249e2f41f2af91d8aed8b9f069',
+          props: {
+            'title': '员工关怀',
+          },
+          title: {
+            
+          }
+        },
+        {
+          key: '70a99df1567443da946ef31e46b62d00',
+          props: {
+            'title': '规章制度',
+          },
+          title: {
+
+          }
+        }
+      ]
+    }
+  }
+]
+
+// [
+//   {
+//     parentId: 'ff9e361ead5b4da4b216fc92d028b939',
+//     id: '03f8d6249e2f41f2af91d8aed8b9f069',
+//     pathId: 'ff9e361ead5b4da4b216fc92d028b939/03f8d6249e2f41f2af91d8aed8b9f069',
+//     path: '行政之窗/员工关怀',
+//   },
+//   {
+//     parentId: 'ff9e361ead5b4da4b216fc92d028b939',
+//     id: '70a99df1567443da946ef31e46b62d00',
+//     pathId: 'ff9e361ead5b4da4b216fc92d028b939/70a99df1567443da946ef31e46b62d00',
+//     path: '行政之窗/规章制度',
+//   }
+// ]

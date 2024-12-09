@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
@@ -18,16 +19,23 @@ import { Layout, Menu, Avatar } from 'antd';
 import type { MenuProps } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import ImgSysIcon from '@/public/images/chatbot-admin.png'
-import Dashboard from './dashboard';
+import Dashboard from './dashboard/page';
 import Knowledge from './knowledge/page';
-import Tag from './tag';
-import Statistics from './statistics';
-import Settings from './settings';
+import Tag from './tag/page';
+import Statistics from './statistics/page';
+import Settings from './settings/page';
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 const { Header, Content, Footer, Sider } = Layout;
+
+// 动态导入组件
+// const Dashboard = dynamic(() => import('./dashboard')); // 确保不在服务器端渲染这个组件
+// const Knowledge = dynamic(() => import('./knowledge')); // 确保不在服务器端渲染这个组件
+// const Tag = dynamic(() => import('./tag')); // 确保不在服务器端渲染这个组件
+// const Statistics = dynamic(() => import('./statistics')); // 确保不在服务器端渲染这个组件
+// const Settings = dynamic(() => import('./settings')); // 确保不在服务器端渲染这个组件
 
 // 定义菜单项类型
 type MenuItem = Required<MenuProps>['items'][number];
@@ -56,47 +64,58 @@ const App: React.FC = () => {
 
   // 使用 useEffect 监听路由变化
   useEffect(() => {
-    const hash = curHash.replace('#/', '');
-    dispatch(setCurrentUrl(hash));
+    if (window && typeof window === 'undefined') {
+      // @ts-ignore
+      // const curHash = window.location.hash;
+      const hash = curHash.replace('#/', '');
+      dispatch(setCurrentUrl(hash));
 
-    // 使用对象映射来简化条件判断
-    const keyMap = {
-      knowledge: 'knowledge',
-      tag: 'tag',
-      statistics: 'statistics',
-      setting: 'setting'
-    };
+      // 使用对象映射来简化条件判断
+      const keyMap = {
+        knowledge: 'knowledge',
+        tag: 'tag',
+        statistics: 'statistics',
+        setting: 'setting'
+      };
 
-    // 默认设置为 'knowledge'
-    // @ts-ignore
-    setCurrentKey(keyMap[hash.split('/')[0]] || 'knowledge');
+      // 默认设置为 'knowledge'
+      // @ts-ignore
+      setCurrentKey(keyMap[hash.split('/')[0]] || 'knowledge');
+    }
   }, [curHash]);
 
   // 根据路由渲染不同组件
   const renderContent = () => {
     if (typeof window === 'undefined') return null; // 如果是服务器端渲染，则不渲染内容
-    switch (currentKey) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'knowledge':
-        return <Knowledge />;
-      case 'tag':
-        return <Tag />;
-      case 'statistics':
-        return <Statistics />;
-      case 'setting':
-        return <Settings />;
-      default:
-        return <Dashboard />;
+    if (typeof window !== 'undefined') {
+      switch (currentKey) {
+        case 'dashboard':
+          return <Dashboard />;
+        case 'knowledge':
+          return <Knowledge />;
+        case 'tag':
+          return <Tag />;
+        case 'statistics':
+          return <Statistics />;
+        case 'setting':
+          return <Settings />;
+        default:
+          return <Dashboard />;
+      }
     }
   };
 
   return (
     <Layout className={classNames("layout")}>
       <Header className={classNames("header")}>
-        <div className={classNames("header-title")}>
+        {typeof window !== 'undefined' && (
+          <div className={classNames("header-title")}>
+            <Image src={ImgSysIcon} alt="logo" width={157} height={19} />
+          </div>
+        )}
+        {/* <div className={classNames("header-title")}>
           <Image src={ImgSysIcon} alt="logo" width={157} height={19} />
-        </div>
+        </div> */}
         <div className={classNames("header-avatar")}>
           <Avatar size={30} icon={<UserOutlined />} />
         </div>

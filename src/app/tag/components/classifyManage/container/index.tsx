@@ -1,4 +1,4 @@
-"use client"
+
 import React, { useState, useEffect } from "react"
 import Image from "next/image"
 import { useDispatch, useSelector } from 'react-redux';
@@ -100,7 +100,7 @@ const Container = (props: Props) => {
     console.log('selected', selectedKeys, info);
     // 调用 action 来更新选中的节点信息
     if (currentUrl?.includes('faq')) {
-      dispatch(selectFaqNode(info.node));
+      // dispatch(selectFaqNode(info.node));
     } else {
       dispatch(selectTemplateNode(info.node));
     }

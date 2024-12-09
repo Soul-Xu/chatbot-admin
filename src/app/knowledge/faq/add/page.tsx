@@ -10,11 +10,10 @@ import Image from "next/image"
 import ImgBackIcon from "@/public/images/back-icon.png"
 import { Button, Form, Radio, TreeSelect, DatePicker, Input, Tag } from "antd"
 import { PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import locale from 'antd/es/date-picker/locale/zh_CN';
 import dayjs from 'dayjs'
 import type { TreeSelectProps } from 'antd';
-import AddTagModal from "@/app/components/addTag/page";
-import { treeData } from "@/app/constants/mock"
+import AddTagModal from "@/app/components/addTag";
+// import { treeData } from "@/app/constants/mock"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -33,8 +32,9 @@ const tagList = [
 const AddFaq = () => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
+  const faqState = useSelector((state: any) => state.faq);
+  const { faqTree } = faqState;
   // const router = useRouter();
-
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<any>({
     question: "",
@@ -45,10 +45,16 @@ const AddFaq = () => {
     category: [],
     tagList: []
   })
+  const [treeData, setTreeData] = useState<any>([])
   const [curType, setCurType] = useState<any>("add")
   const [showAddTagModal, setShowAddTagModal] = useState(false)
   const [faqId, setFaqId] = useState<string | null>(null);
   const [selectTags, setSelectTags] = useState<any>([])
+  // 问题分类
+  const [questionCate, setQuestionCate] = useState<any>([])
+  const [questionCateValue, setQuestionCateValue] = useState<any>([])
+  // 富文本编辑器的状态
+  const [editor, setEditor] = useState(null);
 
   const onPopupScroll: TreeSelectProps['onPopupScroll'] = (e) => {
     console.log('onPopupScroll', e);
@@ -77,9 +83,9 @@ const AddFaq = () => {
       })
       setFormValues({ ...formValues, [key]: value })
     }
-    else {
+    else if (key === 'category') {
       form.setFieldsValue({
-        [key]: e,
+        [key]: { id: e },
       })
       setFormValues({ ...formValues, [key]: e })
     }
@@ -100,53 +106,19 @@ const AddFaq = () => {
     console.log('handleTagClose', tag)
   }
 
-  useEffect(() => {
-    if (currentUrl && currentUrl.includes('edit')) {
-      setCurType("edit");
-      const id = currentUrl.split('/').pop();
-      if (id) {
-        setFaqId(id);
-        // @ts-ignore
-        dispatch(getFaqDetail(id));
-      }
-    } else {
-      setCurType("add");
-    }
-  }, [currentUrl]);
-
-  useEffect(() => {
-    if (curType === "edit" && faqId) {
-      // Populate the form with the detail data
-      // @ts-ignore
-      dispatch(getFaqDetail(faqId)).then((action) => {
-        if (action.meta.requestStatus === 'fulfilled') {
-          const detail = action.payload.data;
-          form.setFieldsValue({
-            question: detail.question,
-            answer: detail.answer,
-            category: detail.category,
-            effectiveType: detail.effectiveType,
-            effectiveBeginTime: detail.effectiveBeginTime,
-            effectiveEndTime: detail.effectiveEndTime,
-            tagList: detail.tagList,
-          });
-          setFormValues({
-            question: detail.question,
-            answer: detail.answer,
-            category: detail.category,
-            effectiveType: detail.effectiveType,
-            effectiveBeginTime: detail.effectiveBeginTime,
-            effectiveEndTime: detail.effectiveEndTime,
-            tagList: detail.tagList,  
-          })
-        }
-      });
-    }
-  }, [curType, faqId, dispatch, form]);
-
-  useEffect(() => {
-    form.setFieldValue('effectiveType', formValues.effectiveType)
-  }, [])
+  // Helper function to convert faqList to TreeDataNode format
+  const convertToTreeData = (data: any) => {
+    return data?.map((item: any) => {
+      const node = {
+        label: item.name, // 设置节点显示的文本
+        title: item.name, // 设置节点显示的文本
+        value: item.id, // 设置节点的值，通常与 key 相同
+        key: item.id, // 设置节点的唯一标识符
+        children: item.children ? convertToTreeData(item.children) : undefined,
+      };
+      return node;
+    });
+  };
 
   // 表单校验规则
   const validateRules = {
@@ -192,6 +164,94 @@ const AddFaq = () => {
       console.error('Failed to submit form:', error);
     }
   }
+
+    // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
+  useEffect(() => {
+    console.log('add-faqTree', faqTree)
+    if (Array.isArray(faqTree)) {
+      // 接口返回的树形结构转化成可以渲染的树形结构
+      const treeData = convertToTreeData(faqTree);
+      console.log('treeData', treeData)
+      setTreeData(treeData);
+    } else {
+      setTreeData([]);
+    }
+  }, [faqTree]);
+
+  useEffect(() => {
+    if (currentUrl && currentUrl.includes('edit')) {
+      setCurType("edit");
+      const id = currentUrl.split('/').pop();
+      if (id) {
+        setFaqId(id);
+        // @ts-ignore
+        dispatch(getFaqDetail(id));
+      }
+    } else {
+      setCurType("add");
+    }
+  }, [currentUrl]);
+
+  useEffect(() => {
+    if (curType === "edit" && faqId) {
+      // Populate the form with the detail data
+      // @ts-ignore
+      dispatch(getFaqDetail(faqId)).then((action) => {
+        if (action.meta.requestStatus === 'fulfilled') {
+          const detail = action.payload.data;
+          form.setFieldsValue({
+            question: detail.question,
+            answer: detail.answer,
+            category: detail.category,
+            effectiveType: detail.effectiveType,
+            effectiveBeginTime: detail.effectiveBeginTime,
+            effectiveEndTime: detail.effectiveEndTime,
+            tagList: detail.tagList,
+          });
+          setFormValues({
+            question: detail.question,
+            answer: detail.answer,
+            category: detail.category,
+            effectiveType: detail.effectiveType,
+            effectiveBeginTime: detail.effectiveBeginTime,
+            effectiveEndTime: detail.effectiveEndTime,
+            tagList: detail.tagList,  
+          })
+        }
+      });
+    }
+  }, [curType, faqId]);
+
+  useEffect(() => {
+    console.log('formValues', formValues)
+  }, [formValues])
+
+  useEffect(() => {
+    form.setFieldValue('effectiveType', formValues.effectiveType)
+  }, [])
+
+    useEffect(() => {
+    // 确保 window 对象在客户端环境中
+    if (typeof window !== 'undefined') {
+      // 假设这里是你需要使用 document 的地方
+      // 例如，初始化 ReactQuill
+      const ReactQuill = require('react-quill');
+      setEditor(ReactQuill);
+    }
+  }, []);
+
+  // 渲染富文本编辑器
+  const renderEditor = () => {
+    if (editor) {
+      return (<ReactQuill
+        theme="snow"
+        value={formValues.answer} 
+        className={classNames("form-editor")}
+        onChange={(e: any) => onFormValuesChange("answer", e)}
+      />)
+    }
+    return <div>Editor is loading...</div>;
+  };
 
   return (
     <div className={classNames("addFaq")}>
@@ -255,32 +315,6 @@ const AddFaq = () => {
               <Radio value={"CUSTOM"}>自定义</Radio>
             </Radio.Group>
           </Form.Item>
-          {/* {formValues.effectiveType === "CUSTOM" && (
-            <Form.Item
-              label="起始时间"
-              name="startTime"
-              // rules={[{ required: true, message: '起始时间' }]}
-              rules={validateRules.effectiveBeginTime}
-            >
-              <div className={classNames("form-time")}>
-                <DatePicker 
-                  locale={locale}
-                  format="YYYY-MM-DD" // 可以根据需要设置日期格式
-                  className={classNames("form-time-item")}
-                  value={formValues.effectiveBeginTime} 
-                  onChange={(e: any) => onFormValuesChange("effectiveBeginTime", e)}
-                />
-                  <span className={classNames("form-time-divider")}>~</span>
-                <DatePicker 
-                  locale={locale}
-                  format="YYYY-MM-DD" // 可以根据需要设置日期格式
-                  className={classNames("form-time-item")} 
-                  value={formValues.effectiveEndTime} 
-                  onChange={(e: any) => onFormValuesChange("effectiveEndTime", e)}
-                />
-              </div>
-            </Form.Item>
-          )} */}
           {formValues.effectiveType === "CUSTOM" && (
             <Form.Item
               label="起始时间"
@@ -349,12 +383,13 @@ const AddFaq = () => {
             rules={validateRules.answer}
           >
             {/* 富文本编辑器 */}
-            <ReactQuill
+            {/* <ReactQuill
               theme="snow"
               value={formValues.answer} 
               className={classNames("form-editor")}
               onChange={(e: any) => onFormValuesChange("answer", e)}
-            />
+            /> */}
+            {renderEditor()}
           </Form.Item>
         </Form>
         <div 

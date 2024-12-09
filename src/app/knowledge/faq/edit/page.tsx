@@ -1,4 +1,4 @@
-"use client"
+
 import React from "react"
 import Container from "../../../components/container";
 import AddFaq from "../add/page";
@@ -7,7 +7,6 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 const FaqEdit = () => {
-
   return (
     <div className={classNames("faqEdit")}>
       <Container>

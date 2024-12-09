@@ -305,7 +305,15 @@
       }
     }
   }
+
+  &-delete {
+    padding: 10px 24px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 22px;
+  }
 }
+
 
 .tree-node-title {
   display: flex;
@@ -332,4 +340,78 @@
 .tree-title {
   padding: 0 8px;
   width: 100%;
+}
+
+.add-tag {
+  background: #FFFFFF;
+  box-sizing: border-box;
+  padding: 0; /* 初始化内边距，避免不必要的继承 */
+
+  &-title, &-footer {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e1e1e1; /* 移到公共选择器中 */
+  }
+
+  &-title {
+    height: 48px;
+    border-bottom: none; /* 特殊情况，需要覆盖上面的样式 */
+    
+    span {
+      display: block; /* 明确span是块级元素 */
+      width: 64px;
+      height: 24px;
+      font: bold 16px/24px MicrosoftYaHei; /* 简化字体声明 */
+      color: #202D40;
+    }
+  }
+
+  &-content {
+    padding: 4px 24px 0; /* 上边距为0，因为不需要 */
+
+    .content-title {
+      display: flex;
+      justify-content: space-between; /* 使用flex布局简化对齐 */
+      margin-bottom: 8px;
+
+      span {
+        font: 14px/22px MicrosoftYaHei;
+        color: #202D40;
+      }
+    }
+  }
+
+  &-footer {
+    justify-content: flex-end;
+
+    .footer-cancel, .footer-ok {
+      display: inline-block; /* 明确为行内块元素 */
+      width: 80px;
+      height: 32px;
+      line-height: 30px; /* 优化垂直居中 */
+      border-radius: 3px;
+      text-align: center;
+    }
+
+    .footer-cancel {
+      border: 1px solid #DCDEE1;
+      margin-right: 24px;
+
+      span {
+        font: 14px/22px MicrosoftYaHei;
+        color: #687181;
+      }
+    }
+
+    .footer-ok {
+      background: #202D40;
+
+      span {
+        color: #FFFFFF;
+      }
+    }
+  }
 }

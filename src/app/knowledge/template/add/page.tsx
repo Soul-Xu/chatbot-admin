@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import { useDispatch, useSelector } from 'react-redux';
 // import Container from "@/app/components/container";
-import AddTagModal from "@/app/components/addTag/page";
+import AddTagModal from "@/app/components/addTag";
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
@@ -37,7 +37,6 @@ const AddTemplate = () => {
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [showAddTagModal, setShowAddTagModal] = useState(false)
   const [selectTags, setSelectTags] = useState<any>([])
-  const currentType = window.location.hash.replace(/^#\/?/, '')
 
   const [value, setValue] = useState<string>();
 
@@ -62,19 +61,21 @@ const AddTemplate = () => {
   }
 
   useEffect(() => {
-    const currentType = window.location.hash.replace(/^#\/?/, '')
-    if (currentType && currentType.includes('edit')) {
-      setCurType("edit");
-      const id = currentUrl.split('/').pop();
-      if (id) {
-        setTemplateId(id);
-        // @ts-ignore
-        dispatch(getFaqDetail(id));
+    if (typeof window !== 'undefined') {
+      const currentType = window.location.hash.replace(/^#\/?/, '')
+      if (currentType && currentType.includes('edit')) {
+        setCurType("edit");
+        const id = currentUrl.split('/').pop();
+        if (id) {
+          setTemplateId(id);
+          // @ts-ignore
+          dispatch(getFaqDetail(id));
+        }
+      } else {
+        setCurType("add")
       }
-    } else {
-      setCurType("add")
     }
-  }, [currentType])
+  }, [])
 
   return (
     <div className={classNames("addTemplate")}>

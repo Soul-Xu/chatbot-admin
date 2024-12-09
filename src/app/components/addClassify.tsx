@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+
+import React, { useEffect, useMemo } from "react";
 import { Modal, Button, Form, Input, InputNumber } from "antd";
 import { useDispatch, useSelector } from 'react-redux';
 import { addFaqTree, updateFaqTree } from "@/lib/features/slices/faqSlice";
@@ -7,15 +8,15 @@ import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 interface Props {
-  id?: string
+  nodeInfo: any
   type: string;
   show: boolean;
   onClose: () => void;
-  onOk: (values: { name: string; sort: number }) => void; // 修改onOk函数类型
+  onOk: () => void; // 修改onOk函数类型
 }
 
 const AddClassify = (props: Props) => {
-  const { id, type, show, onClose, onOk } = props;
+  const { nodeInfo, type, show, onClose, onOk } = props;
   const dispatch = useDispatch()
   const [form] = Form.useForm();
 
@@ -33,18 +34,24 @@ const AddClassify = (props: Props) => {
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
+      const params = {
+        name: values.name,
+        sort: values.sort,
+        parentId: nodeInfo.parentId
+      }
       if (type === 'add') {
+        console.log('add', params)
         // @ts-ignore
-        dispatch(addFaqTree(values))
+        dispatch(addFaqTree(params))
       } else {
-        const params = {
-          id,
-          ...values
+        const query = {
+          id: nodeInfo.id,
+          ...params
         }
         // @ts-ignore
-        dispatch(updateFaqTree(params))
+        dispatch(updateFaqTree(query))
       }
-      onClose()
+      onOk()
     } catch (errorInfo) {
       console.log('Validate Failed:', errorInfo);
     }
@@ -69,6 +76,15 @@ const AddClassify = (props: Props) => {
       </div>
     );
   }, []);
+
+  useEffect(() => {
+    if (type === 'edit') {
+      form.setFieldsValue({
+        name: nodeInfo.name,
+        sort: nodeInfo.level + 1
+      })
+    }
+  }, [])
 
   return (
     <Modal

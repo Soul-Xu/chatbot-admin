@@ -1,4 +1,4 @@
-"use client"
+
 import React from "react"
 import Image from "next/image"
 import ImgSearchIcon from "@/public/images/search-icon.png"

@@ -4,38 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { getFaqList } from "@/lib/features/slices/faqSlice";
 import { useRouter } from "next/navigation";
-import { Breadcrumb, Table } from "antd"
+import { Breadcrumb, Table, Tooltip } from "antd"
 import Container from "../../../components/container";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const dataSource = [
-  {
-    id: '3',
-    key: '3',
-    question: '日常流程问答',
-    answer: '答案1',
-    createByName: '陈洪',
-    createTime: '2022.03.22 16:47:22',
-    fdUseCount: '49',
-    fdStatus: '已生效'
-  },
-  {
-    id: '4',
-    key: '4',
-    question: '日常流程问答',
-    answer: '答案1',
-    createByName: '陈洪',
-    createTime: '2022.03.22 16:47:22',
-    fdUseCount: '49',
-    fdStatus: '已生效'
-  },
-]
-
 const initialParmas = {
   pageSize: 10,
-  pageNo: 0,
+  pageNo: 1,
   question: '',
 }
 
@@ -43,15 +20,18 @@ const FaqList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const faqState = useSelector((state: any) => state.faq);
-  const { faqList } = faqState;
+  const { faqList, selectedNode } = faqState;
+  // 使用useState创建面包屑项的状态
+  const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [queryParams, setQueryParams] = useState(initialParmas)
+  const [tableData, setTableData] = useState<any>([])
   // const [totalCount, setTotalCount] = useState<any>(0)
 
   // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
   const pagination = {
     current: queryParams.pageNo / queryParams.pageSize + 1,
     pageSize: queryParams.pageSize,
-    // total: faqList?.totalCount,
+    total: faqList?.totalCount, // 总条数
     showTotal: (total: number) => `共 ${total} 条`,
     onChange: (page: number, pageSize: number) => {
       const newOffset = (page - 1) * pageSize // 计算新的偏移量
@@ -66,31 +46,43 @@ const FaqList = () => {
     {
       title: '问题',
       dataIndex: 'question',
+      width: 150,
       key: 'question',
+      render: (text:any) => (
+        <div style={{ width: '150px'}}>{text}</div>
+      ),
     },
     {
       title: '答案',
       dataIndex: 'answer',
+      width: 500,
       key: 'answer',
+      render: (text:any) => (
+        <div style={{ width: '500px'}}>{text}</div>
+      ),
     },
     {
       title: '创建人',
       dataIndex: 'createByName',
+      width: 180,
       key: 'createByName',
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
+      width: 250,
       key: 'createTime',
     },
     {
       title: '使用量',
       dataIndex: 'fdUseCount',
+      width: 100,
       key: 'fdUseCount',
     },
     {
       title: '状态',
       dataIndex: 'fdStatus',
+      width: 100,
       key: 'fdStatus'
     }
   ]
@@ -99,6 +91,37 @@ const FaqList = () => {
     router.replace(`#/knowledge/faq/view?id=${record.id}`);
     dispatch(setCurrentUrl('knowledge/faq/view'));
   }
+
+  useEffect(() => {
+    if (faqList !== null) {
+      const dataSource = faqList?.data.map((item: any) => {
+        return {
+          ...item,
+          key: item.id,
+        }
+      })
+      setTableData(dataSource)
+    }
+  }, [faqList])
+
+  // 当selectedNode变化时，更新面包屑项
+  useEffect(() => {
+    if (selectedNode) {
+      console.log('selectedNode-2222', selectedNode)
+      const pathParts = selectedNode.path.split('/');
+      const newBreadcrumbItems = pathParts.map((part:any, index:any) => {
+        if (index === pathParts.length - 1) {
+          return {
+            title: <a href="#/knowledge/faq/list" style={{ color: '#000', fontWeight: 500 }}>{part}</a>,
+          };
+        }
+        return {
+          title: part,
+        };
+      });
+      setBreadcrumbItems(newBreadcrumbItems);
+    }
+  }, [selectedNode]);
 
   useEffect(() => {
     const params = {
@@ -114,21 +137,12 @@ const FaqList = () => {
     <div className={classNames("faqList")}>
       <Container>
         <div className={classNames("main-title")}>
-          <Breadcrumb
-            items={[
-              {
-                title: <a href="" style={{ color: '#000'}}>数字化办公室</a>,
-              },
-              {
-                title: '金科中心常用',
-              },
-            ]}
-          />
+          <Breadcrumb items={breadcrumbItems} />
         </div>
         <div className={classNames("main-table")}>
           <Table 
             columns={columns} 
-            dataSource={dataSource} 
+            dataSource={tableData} 
             pagination={pagination}
             onRow={(record) => {
               return {

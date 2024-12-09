@@ -1,6 +1,5 @@
 "use client"
-import React, { useEffect } from "react"
-import Link from "next/link";
+import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUrl } from '@/lib/features/slices/urlSlice';
 import { getFaqDetail } from "@/lib/features/slices/faqSlice";
@@ -15,13 +14,16 @@ const classNames = classnames.bind(styles);
 const FaqView = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const faqDetail = useSelector((state: any) => state.faq);
+  const faqState = useSelector((state: any) => state.faq);
+  const { faqList, selectedNode } = faqState;
+  // 使用useState创建面包屑项的状态
+  const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   // 获取hash部分，去掉前面的'#'符号
-  const hash = window.location.hash.substring(1);
-  // 使用URLSearchParams解析参数
-  const params = new URLSearchParams(hash.split('?')[1]);
-  // 获取id参数
-  const idFromHash = params.get('id');
+  // const hash = window.location.hash.substring(1);
+  // // 使用URLSearchParams解析参数
+  // const params = new URLSearchParams(hash.split('?')[1]);
+  // // 获取id参数
+  // const idFromHash = params.get('id');
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     console.log('click', e);
@@ -57,31 +59,39 @@ const FaqView = () => {
   }
 
   useEffect(() => {
+    // 获取hash部分，去掉前面的'#'符号
+    const hash = window.location.hash.substring(1);
+    // 使用URLSearchParams解析参数
+    const params = new URLSearchParams(hash.split('?')[1]);
+    // 获取id参数
+    const idFromHash = params.get('id');
     // @ts-ignore
     idFromHash && dispatch(getFaqDetail(idFromHash));
-  }, [idFromHash])
+  }, [])
+
+  // 当selectedNode变化时，更新面包屑项
+  useEffect(() => {
+    if (selectedNode) {
+      const pathParts = selectedNode.path.split('/');
+      const newBreadcrumbItems = pathParts.map((part:any, index:any) => {
+        if (index === pathParts.length - 1) {
+          return {
+            title: <a href="#/knowledge/faq/list" style={{ color: '#000', fontWeight: 500 }}>{part}</a>,
+          };
+        }
+        return {
+          title: part,
+        };
+      });
+      setBreadcrumbItems(newBreadcrumbItems);
+    }
+  }, [selectedNode]);
   
   return (
     <div className={classNames("faqView")}>
       <Container>
         <div className={classNames("main-title")}>
-          <Breadcrumb
-            items={[
-              {
-                title: <Link href="" style={{ color: '#000'}}>数字化办公室</Link>,
-              },
-              {
-                title: 
-                  <Link 
-                    href="#/knowledge/faq/list" 
-                    style={{ color: '#000'}}
-                    onClick={() => handleLinkClick('knowledge/faq/list')}
-                  >
-                    金科中心常用
-                  </Link>,
-              },
-            ]}
-          />
+          <Breadcrumb items={breadcrumbItems}/>
         </div>
         <div className={classNames("main-content")}>
           <div className={classNames("main-content-title")}>

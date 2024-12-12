@@ -27,7 +27,6 @@ const FaqList = () => {
   const [tableData, setTableData] = useState<any>([])
   // const [totalCount, setTotalCount] = useState<any>(0)
 
-  // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
   const pagination = {
     current: queryParams.pageNo / queryParams.pageSize + 1,
     pageSize: queryParams.pageSize,

@@ -1,5 +1,6 @@
 "use client"
 import React, { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { useSelector } from 'react-redux';
 import KnowledgeList from './list';
 // FAQ库

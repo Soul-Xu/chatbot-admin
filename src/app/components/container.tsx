@@ -199,7 +199,6 @@ const Container = (props: Props) => {
         // 构建节点路径数组
         const selectedNodeMap = nodeTemplatePaths.find((item: any) => item.id === selectedKeys[0])
         const selectedNodeInfo = nodeTemplatePaths.find((item: any) => item.id === selectedKeys[0])
-        console.log('selectedNodeInfo', selectedNodeInfo)
         setSelectTreeNode(selectedNodeInfo);
         dispatch(selectTemplateNode(selectedNodeMap));
       }

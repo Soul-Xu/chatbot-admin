@@ -11,9 +11,77 @@ import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
+const dataSource = [
+  {
+    id: 1,
+    key: 1,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 2,
+    key: 2,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 3,
+    key: 3,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 4,
+    key: 4,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 5,
+    key: 5,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 6,
+    key: 6,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+  {
+    id: 7,
+    key: 7,
+    fdProcessTitle: 'IT需求申请',
+    fdDescription: 'IT需求申请流程',
+    fdTag: 'IT,需求,申请',
+    fdUser: '海勇',
+    fdLink: 'https://workflow-uat.newone.com.cn/web/#/mklogin'
+  },
+]
+
 const initialParmas = {
   pageSize: 10,
-  pageNo: 1,
+  pageNo: 0,
+  searchCount: true,
+  offset: 0,
   subject: '',
   categoryId: ''
 }
@@ -22,17 +90,14 @@ const TemplateList = () => {
   const router = useRouter()
   const dispatch = useDispatch()
   const templateState = useSelector((state: any) => state.template);
-  const { templateList, selectedTemplateNode } = templateState;
-  // 使用useState创建面包屑项的状态
-  const [breadcrumbItems, setBreadcrumbItems] = useState([]);
+  const { templateList } = templateState;
   const [queryParams, setQueryParams] = useState(initialParmas)
-  const [tableData, setTableData] = useState<any>([])
 
    // 项目列表中使用了多个@lui/core相关组件，可能是组件底层有影响，无法自动触发相关配置，需要手动添加
   const pagination = {
     current: queryParams.pageNo / queryParams.pageSize + 1,
     pageSize: queryParams.pageSize,
-    total: templateList?.totalCount,
+    total: templateList.totalCount,
     showTotal: (total: number) => `共 ${total} 条`,
     onChange: (page: number, pageSize: number) => {
       const newOffset = (page - 1) * pageSize // 计算新的偏移量
@@ -46,101 +111,68 @@ const TemplateList = () => {
   const columns = [
     {
       title: '流程标题',
-      dataIndex: 'subject',
-      key: 'subject',
+      dataIndex: 'fdProcessTitle',
+      key: 'fdProcessTitle',
     },
     {
       title: '流程描述',
-      dataIndex: 'description',
-      key: 'description',
-      render: (_:any, record: any) => {
-        return <div dangerouslySetInnerHTML={{__html: record?.description}}></div>
-      }
+      dataIndex: 'fdDescription',
+      key: 'fdDescription',
     },
     {
       title: '知识标签',
-      dataIndex: 'tagList',
-      key: 'tagList',
-      render: (_:any, record: any) => {
-        return <div>{record?.tagList.map((item:any) => item.name).join(', ')}</div>
-      }
+      dataIndex: 'fdTag',
+      key: 'fdTag',
     },
     {
       title: '可使用者',
-      dataIndex: 'readerFlag',
-      key: 'readerFlag',
-      render: (_:any, record: any) => {
-        if (record.readerFlag === 'ALL') {
-          return <div>所有人</div>
-        } else if (record.readerFlag === 'RANGE') {
-          return <div>{record?.readers.map((item:any) => item.name).join(', ')}</div>
-        } else if (record.readerFlag === null) {
-          return <div>无</div>
-        }
-      }
+      dataIndex: 'fdUser',
+      key: 'fdUser',
     },
     {
       title: '流程链接',
-      dataIndex: 'url',
-      key: 'url'
+      dataIndex: 'fdLink',
+      key: 'fdLink'
     }
   ]
 
   const handleRowClick = (record: any) => {
-    router.push(`/#/knowledge/template/view?id=${record.id}`)
+    router.push(`#/knowledge/template/view?id=${record.id}`)
     dispatch(setCurrentUrl('knowledge/template/view'))
   }
 
   useEffect(() => {
-    if (templateList !== null) {
-      const dataSource = templateList?.data.map((item: any) => {
-        return {
-          ...item,
-          key: item.id,
-        }
-      })
-      setTableData(dataSource)
+    const params = {
+      pageSize: 10,
+      pageNo: 0,
+      searchCount: true,
+      offset: 0,
+      subject: '',
+      categoryId: ''
     }
-  }, [templateList])
-
-  // 当selectedTemplateNode变化时，更新面包屑项
-  useEffect(() => {
-    if (selectedTemplateNode) {
-      // 面包屑逻辑
-      const pathParts = selectedTemplateNode.path.split('/');
-      const newBreadcrumbItems = pathParts.map((part:any, index:any) => {
-        if (index === pathParts.length - 1) {
-          return {
-            title: <a href="#/knowledge/faq/list" style={{ color: '#000', fontWeight: 500 }}>{part}</a>,
-          };
-        }
-        return {
-          title: part,
-        };
-      });
-      setBreadcrumbItems(newBreadcrumbItems);
-
-      // 列表显示逻辑
-      const params = {
-        pageSize: 10,
-        pageNo: 1,
-        categoryId: selectedTemplateNode?.id
-      }
-      // @ts-ignore
-      dispatch(getTemplateList(params));
-    }
-  }, [selectedTemplateNode]);
+    // @ts-ignore
+    dispatch(getTemplateList(params));
+  }, [])
 
   return (
     <div className={classNames("templateList")}>
       <Container>
         <div className={classNames("main-title")}>
-          <Breadcrumb items={breadcrumbItems} />
+          <Breadcrumb
+            items={[
+              {
+                title: <Link href="" style={{ color: '#000'}}>数字化办公室</Link>,
+              },
+              {
+                title: <Link href="/knowledge/template/list" style={{ color: '#000'}}>金科中心常用</Link>,
+              },
+            ]}
+          />
         </div>
         <div className={classNames("main-table")}>
           <Table 
             columns={columns} 
-            dataSource={tableData} 
+            dataSource={templateList.data || dataSource} 
             pagination={pagination}
             onRow={(record) => {
               return {

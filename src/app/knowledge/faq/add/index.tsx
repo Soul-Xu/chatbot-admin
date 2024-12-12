@@ -38,6 +38,11 @@ const AddFaq = () => {
   const [showAddTagModal, setShowAddTagModal] = useState(false)
   const [faqId, setFaqId] = useState<string | null>(null);
   const [selectTags, setSelectTags] = useState<any>([])
+  // 问题分类
+  const [questionCate, setQuestionCate] = useState<any>([])
+  const [questionCateValue, setQuestionCateValue] = useState<any>([])
+  // 富文本编辑器的状态
+  const [editor, setEditor] = useState(null);
 
   const onShowAddModal = () => {
     setShowAddTagModal(true)
@@ -76,7 +81,7 @@ const AddFaq = () => {
       setFormValues({ ...formValues, [key]: e })
     } else if (key === 'answer') {
       form.setFieldsValue({
-        [key]: e,
+        [key]: { id: e },
       })
       setFormValues({ ...formValues, [key]: e })
     }
@@ -162,7 +167,8 @@ const AddFaq = () => {
       // 处理错误，例如显示错误消息
       console.error('Failed to submit form:', error);
     }
-  }
+    return <div>Editor is loading...</div>;
+  };
 
   // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
   useEffect(() => {

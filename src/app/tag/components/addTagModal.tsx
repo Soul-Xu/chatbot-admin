@@ -27,7 +27,6 @@ const AddTagModal = (props: Props) => {
   const [treeData, setTreeData] = useState<any>([])
 
   const onFormValuesChange = (key: string, e: any) => {
-    console.log('onFormValuesChange', key, e)
     if (key === 'name') {
       const value = e.target.value
       form.setFieldsValue({
@@ -73,6 +72,7 @@ const AddTagModal = (props: Props) => {
         category: {
           id: values.category
         },
+        tagType: 'BUSINESS'
         // synonymList: []
       }
       // @ts-ignore

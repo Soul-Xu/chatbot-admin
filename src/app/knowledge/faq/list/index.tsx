@@ -20,7 +20,7 @@ const FaqList = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const faqState = useSelector((state: any) => state.faq);
-  const { faqList, selectedNode } = faqState;
+  const { faqList, selectedFaqNode } = faqState;
   // 使用useState创建面包屑项的状态
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
   const [queryParams, setQueryParams] = useState(initialParmas)
@@ -104,11 +104,10 @@ const FaqList = () => {
     }
   }, [faqList])
 
-  // 当selectedNode变化时，更新面包屑项
+  // 当selectedFaqNode变化时，更新面包屑项
   useEffect(() => {
-    if (selectedNode) {
-      console.log('selectedNode-2222', selectedNode)
-      const pathParts = selectedNode.path.split('/');
+    if (selectedFaqNode) {
+      const pathParts = selectedFaqNode.path.split('/');
       const newBreadcrumbItems = pathParts.map((part:any, index:any) => {
         if (index === pathParts.length - 1) {
           return {
@@ -120,18 +119,16 @@ const FaqList = () => {
         };
       });
       setBreadcrumbItems(newBreadcrumbItems);
-    }
-  }, [selectedNode]);
 
-  useEffect(() => {
-    const params = {
-      pageSize: 10,
-      pageNo: 1,
-      // question: '',
+      const params = {
+        pageSize: 10,
+        pageNo: 1,
+        // question: '',
+      }
+      // @ts-ignore
+      dispatch(getFaqList(params));
     }
-    // @ts-ignore
-    dispatch(getFaqList(params));
-  }, [])
+  }, [selectedFaqNode]);
  
   return (
     <div className={classNames("faqList")}>

@@ -2,8 +2,7 @@
 import React, { useMemo, useEffect } from "react";
 import { Modal, Button } from "antd";
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteFaqTree } from "@/lib/features/slices/faqSlice";
-import { deleteTemplateTree } from "@/lib/features/slices/templateSlice";
+import { deleteTagTree } from "@/lib/features/slices/tagSlice";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -22,10 +21,9 @@ const DeleteClassify = (props: Props) => {
 
   // 处理确认按钮点击事件
   const handleOk = async () => {
-    const isFaq = window.location.href.includes('faq')
     try {
       // @ts-ignore
-      isFaq ? dispatch(deleteFaqTree(nodeInfo.id)) : dispatch(deleteTemplateTree(nodeInfo.id))
+      dispatch(deleteTagTree(nodeInfo.id))
       onOk()
     } catch (errorInfo) {
       console.log('Validate Failed:', errorInfo);

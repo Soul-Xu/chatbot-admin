@@ -1,15 +1,12 @@
 
 import React, { useEffect, useState, useMemo } from "react";
-import { Modal, Button, Form, Input, InputNumber } from "antd";
+import { Modal, Button, Form, Input, TreeSelect } from "antd";
 import { useDispatch, useSelector } from 'react-redux';
-import { addFaqTree, updateFaqTree } from "@/lib/features/slices/faqSlice";
-import { addTemplateTree, updateTemplateTree } from "@/lib/features/slices/templateSlice";
+import { addTag } from "@/lib/features/slices/tagSlice";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 interface Props {
-  nodeInfo: any
-  type: string;
   show: boolean;
   onClose: () => void;
   onOk: () => void; // 修改onOk函数类型
@@ -20,34 +17,50 @@ const initFormValues = {
   sort: 1
 }
 
-const AddClassify = (props: Props) => {
-  const { nodeInfo, type, show, onClose, onOk } = props;
+const AddTagModal = (props: Props) => {
+  const { show, onClose, onOk } = props;
   const dispatch = useDispatch()
+  const tagState = useSelector((state: any) => state.tag)
+  const { tagTree } = tagState
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<any>(initFormValues)
+  const [treeData, setTreeData] = useState<any>([])
 
   const onFormValuesChange = (key: string, e: any) => {
+    console.log('onFormValuesChange', key, e)
     if (key === 'name') {
       const value = e.target.value
       form.setFieldsValue({
         [key]: value,
       })
       setFormValues({ ...formValues, [key]: value })
-    } else if (key === 'sort') {
+    } else if (key === 'category') {
       form.setFieldsValue({
         [key]: e,
       })
-      setFormValues({ ...formValues, [key]: e })
+      setFormValues({ ...formValues, [key]: {
+          id: e
+      }})
     }
   }
+
+  const convertToTreeData = (data: any) => {
+    return data?.map((item: any) => {
+      const node = {
+        label: item.name, // 设置节点显示的文本
+        title: item.name, // 设置节点显示的文本
+        value: item.id, // 设置节点的值，通常与 key 相同
+        key: item.id, // 设置节点的唯一标识符
+        children: item.children ? convertToTreeData(item.children) : undefined,
+      };
+      return node;
+    });
+  };
 
   // 校验规则
   const validateRules = {
     name: [
-      { required: true, message: '请输入分类名称', whitespace: true },
-    ],
-    sort: [
-      { required: true, message: '请输入排序', type: 'number' },
+      { required: true, message: '请输入标签名称', whitespace: true },
     ],
   };
 
@@ -57,41 +70,19 @@ const AddClassify = (props: Props) => {
       const values = await form.validateFields();
       const params = {
         name: values.name,
-        sort: values.sort,
-        parentId: nodeInfo?.parentId || ''
+        category: {
+          id: values.category
+        },
+        // synonymList: []
       }
-      const isFaq = window.location.href.includes('faq')
-      if (type === 'add') {
-        // @ts-ignore
-        isFaq ? dispatch(addFaqTree(params)) : dispatch(addTemplateTree(params))
-      } else {
-        const query = {
-          id: nodeInfo?.id,
-          ...params
-        }
-        // @ts-ignore
-        isFaq ? dispatch(updateFaqTree(query)) : dispatch(updateTemplateTree(query))
-      }
+      // @ts-ignore
+      dispatch(addTag(params))
       setFormValues(initFormValues)
       onOk()
     } catch (errorInfo) {
       console.log('Validate Failed:', errorInfo);
     }
   };
-
-  useEffect(() => {
-    const name = nodeInfo?.path.split('/').pop()
-    if (nodeInfo) {
-      form.setFieldsValue({
-        name,
-        sort: nodeInfo.level
-      })
-      setFormValues({
-        name,
-        sort: nodeInfo.level
-      })
-    }
-  }, [nodeInfo])
 
   const footer = useMemo(() => {
     return (
@@ -113,14 +104,24 @@ const AddClassify = (props: Props) => {
     );
   }, []);
 
+    // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
+  useEffect(() => {
+    if (Array.isArray(tagTree)) {
+      // 接口返回的树形结构转化成可以渲染的树形结构
+      const treeData = convertToTreeData(tagTree);
+      setTreeData(treeData);
+    } else {
+      setTreeData([]);
+    }
+  }, [tagTree]);
+
   return (
     <Modal
       title={
         <div className={classNames("add-classify-title")}>
-          <span>{type === "add" ? "新增分类" : "编辑分类"}</span>
+          <span>新增标签</span>
         </div>
       }
-      width={560}
       open={show}
       onCancel={onClose}
       className={classNames("add-classify")}
@@ -132,7 +133,7 @@ const AddClassify = (props: Props) => {
         className={classNames("add-classify-content")}
       >
         <Form.Item
-          label="分类名称"
+          label="标签名称"
           name="name" // 添加name属性
           rules={validateRules.name} // 应用校验规则
           className={classNames("form-item-label")}
@@ -145,18 +146,20 @@ const AddClassify = (props: Props) => {
           />
         </Form.Item>
         <Form.Item
-          label="排序"
-          name="sort" // 添加name属性
-          // @ts-ignore
-          rules={validateRules.sort} // 应用校验规则
-          className={classNames("form-item-label")}
+          label="标签分类"
+          name="category"
         >
-          <InputNumber 
-            value={formValues.sort}
-            min={1} 
-            className={classNames("form-item-input")} 
-            placeholder="请输入"
-            onChange={(e) => onFormValuesChange('sort', e)}
+          <TreeSelect
+            showSearch
+            style={{ width: '100%' }}
+            value={formValues.category}
+            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+            className={classNames("form-treeSelect")}
+            placeholder="请选择标签分类"
+            allowClear
+            treeDefaultExpandAll
+            onChange={(e: any) => onFormValuesChange("category", e)}
+            treeData={treeData}
           />
         </Form.Item>
       </Form>
@@ -164,4 +167,4 @@ const AddClassify = (props: Props) => {
   );
 };
 
-export default AddClassify;
+export default AddTagModal;

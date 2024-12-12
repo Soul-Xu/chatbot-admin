@@ -39,6 +39,9 @@
 
     &-right {
       &-action {
+        display: flex;
+        align-items: center;
+
         .btn-link {
           span {
             margin-left: 4px;
@@ -93,21 +96,6 @@
           }
         }
       } 
-    }
-  }
-
-  &-search {
-    height: 64px;
-    padding: 16px 24px;
-    background: rgba(252,252,252,0.98);
-    box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.1), 0px 1px 0px 0px rgba(0,0,0,0.08);
-  
-    &-input {
-      width: 280px;
-      height: 32px;
-      background: #FFFFFF;
-      border-radius: 2px;
-      border: 1px solid #D9D9D9;
     }
   }
 }

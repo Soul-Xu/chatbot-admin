@@ -5,7 +5,8 @@ const nextConfig = {
   swcMinify: true, 
   sassOptions: { 
     includePaths: [path.join(__dirname, 'styles')] 
-  } 
+  },
+  basePath: '/chatbot/admin'
 }
 
 module.exports = nextConfig

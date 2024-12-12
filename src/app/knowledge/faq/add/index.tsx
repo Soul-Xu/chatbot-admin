@@ -13,28 +13,16 @@ import { PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import dayjs from 'dayjs'
 import type { TreeSelectProps } from 'antd';
 import AddTagModal from "@/app/components/addTag";
-// import { treeData } from "@/app/constants/mock"
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
-const tagList = [
-  {
-    id: 1,
-    name: "流程开发",
-  },
-  {
-    id: 2,
-    name: "开发规范",
-  },
-]
-
 const AddFaq = () => {
   const dispatch = useDispatch();
   const currentUrl = useSelector((state: any) => state.currentUrl);
+  let curUrl
   const faqState = useSelector((state: any) => state.faq);
-  const { faqTree } = faqState;
-  // const router = useRouter();
+  const { faqTree, faqDetail } = faqState;
   const [form] = Form.useForm();
   const [formValues, setFormValues] = useState<any>({
     question: "",
@@ -50,15 +38,6 @@ const AddFaq = () => {
   const [showAddTagModal, setShowAddTagModal] = useState(false)
   const [faqId, setFaqId] = useState<string | null>(null);
   const [selectTags, setSelectTags] = useState<any>([])
-  // 问题分类
-  const [questionCate, setQuestionCate] = useState<any>([])
-  const [questionCateValue, setQuestionCateValue] = useState<any>([])
-  // 富文本编辑器的状态
-  const [editor, setEditor] = useState(null);
-
-  const onPopupScroll: TreeSelectProps['onPopupScroll'] = (e) => {
-    console.log('onPopupScroll', e);
-  };
 
   const onShowAddModal = () => {
     setShowAddTagModal(true)
@@ -76,26 +55,42 @@ const AddFaq = () => {
       })
       setFormValues({ ...formValues, [key]: value })
     } else if(key === 'effectiveBeginTime' || key === 'effectiveEndTime') {
-      const value = dayjs(e)
-      console.log('value', dayjs(value).valueOf())
+      const value = dayjs(e); // 确保 e 可以被 dayjs 正确解析
+      if (!value.isValid()) { // 检查 value 是否有效
+        console.error('Invalid date:', e);
+        return;
+      }
       form.setFieldsValue({
         [key]: value.valueOf(),
-      })
-      setFormValues({ ...formValues, [key]: value })
-    }
-    else if (key === 'category') {
+      });
+      setFormValues({ ...formValues, [key]: value });
+    } else if (key === 'category') {
       form.setFieldsValue({
-        [key]: { id: e },
+        [key]: e,
+      })
+      setFormValues({ ...formValues, [key]: { id: e } })
+    } else if (key === 'tagList') {
+      form.setFieldsValue({
+        [key]: e,
+      })
+      setFormValues({ ...formValues, [key]: e })
+    } else if (key === 'answer') {
+      form.setFieldsValue({
+        [key]: e,
       })
       setFormValues({ ...formValues, [key]: e })
     }
   }
 
-  const handleAddTag = (selectedTagIds: string[]) => {
-    console.log('selectedTagIds', selectedTagIds)
-    setSelectTags(selectedTagIds)
-    // 假设tagList中的每个标签对象都有id属性，且与TreeDataNode的key相对应
-    const selectedTags = tagList.filter(tag => selectedTagIds.includes(tag.id.toString()));
+  // 假设的辅助函数，将标签 ID 转换为标签对象
+  const convertListToTags = (lists: string[]) => {
+    // 这里需要根据您的数据结构来转换
+    return lists.map((list:any) => ({ id: list.key, name: list?.title })); // 示例转换
+  };
+
+  const handleAddTag = (selectedTagList: any[], selectedTagIds: string[]) => {
+    // 假设您有一个函数可以将标签 ID 转换为标签对象
+    const selectedTags = convertListToTags(selectedTagList);
     setFormValues((prevValues:any) => ({
       ...prevValues,
       tagList: [...prevValues.tagList, ...selectedTags]
@@ -131,10 +126,10 @@ const AddFaq = () => {
     tagList: [{ required: true, message: '请选择知识标签' }],
   };
 
+  // 提交
   const onFinish = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log('formValues', values);
     // 进行表单校验
     try {
       const payload = {
@@ -149,12 +144,16 @@ const AddFaq = () => {
         delete payload.effectiveEndTime
       }
 
-      console.log('post', payload)
-
       if (curType === "add") {
         // @ts-ignore
         await dispatch(faqAdd(payload));
       } else if (curType === "edit" && faqId) {
+        const params = {
+          ...payload,
+          id: faqId
+        }
+        console.log('params', params)
+
         // @ts-ignore
         await dispatch(faqUpdate({ id: faqId, ...payload }));
       }
@@ -165,13 +164,11 @@ const AddFaq = () => {
     }
   }
 
-    // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
+  // 在 useEffect 中使用 convertToTreeData 函数来设置树形数据，并添加 parent 属性
   useEffect(() => {
-    console.log('add-faqTree', faqTree)
     if (Array.isArray(faqTree)) {
       // 接口返回的树形结构转化成可以渲染的树形结构
       const treeData = convertToTreeData(faqTree);
-      console.log('treeData', treeData)
       setTreeData(treeData);
     } else {
       setTreeData([]);
@@ -179,9 +176,13 @@ const AddFaq = () => {
   }, [faqTree]);
 
   useEffect(() => {
-    if (currentUrl && currentUrl.includes('edit')) {
+    curUrl = window.location.href;
+    const hasUrl = currentUrl || curUrl
+    if (hasUrl && hasUrl.includes('edit')) {
       setCurType("edit");
-      const id = currentUrl.split('/').pop();
+      // const id = new URLSearchParams(hasUrl).get('id');
+      const id = hasUrl.split('=').pop();
+      console.log('url-id', id)
       if (id) {
         setFaqId(id);
         // @ts-ignore
@@ -190,68 +191,35 @@ const AddFaq = () => {
     } else {
       setCurType("add");
     }
-  }, [currentUrl]);
+  }, [currentUrl, curUrl]);
 
   useEffect(() => {
-    if (curType === "edit" && faqId) {
-      // Populate the form with the detail data
-      // @ts-ignore
-      dispatch(getFaqDetail(faqId)).then((action) => {
-        if (action.meta.requestStatus === 'fulfilled') {
-          const detail = action.payload.data;
-          form.setFieldsValue({
-            question: detail.question,
-            answer: detail.answer,
-            category: detail.category,
-            effectiveType: detail.effectiveType,
-            effectiveBeginTime: detail.effectiveBeginTime,
-            effectiveEndTime: detail.effectiveEndTime,
-            tagList: detail.tagList,
-          });
-          setFormValues({
-            question: detail.question,
-            answer: detail.answer,
-            category: detail.category,
-            effectiveType: detail.effectiveType,
-            effectiveBeginTime: detail.effectiveBeginTime,
-            effectiveEndTime: detail.effectiveEndTime,
-            tagList: detail.tagList,  
-          })
-        }
+    if (curType === 'edit' && faqDetail) {
+      form.setFieldsValue({
+        category: faqDetail.category?.id,
+        effectiveType: faqDetail.effectiveType,
+        effectiveBeginTime: dayjs(faqDetail.effectiveBeginTime, "YYYY-MM-DD HH:mm:ss"),
+        effectiveEndTime: dayjs(faqDetail.effectiveEndTime, "YYYY-MM-DD HH:mm:ss"),
+        question: faqDetail.question,
+        answer: faqDetail.answer,
+        tagList: faqDetail.tagList,
+      });
+      setFormValues({
+        ...formValues,
+        category: faqDetail.category?.id,
+        effectiveType: faqDetail.effectiveType,
+        effectiveBeginTime: faqDetail.effectiveBeginTime,
+        effectiveEndTime: faqDetail.effectiveEndTime,
+        question: faqDetail.question,
+        answer: faqDetail.answer,
+        tagList: faqDetail.tagList,
       });
     }
-  }, [curType, faqId]);
-
-  useEffect(() => {
-    console.log('formValues', formValues)
-  }, [formValues])
+  }, [faqDetail])
 
   useEffect(() => {
     form.setFieldValue('effectiveType', formValues.effectiveType)
   }, [])
-
-    useEffect(() => {
-    // 确保 window 对象在客户端环境中
-    if (typeof window !== 'undefined') {
-      // 假设这里是你需要使用 document 的地方
-      // 例如，初始化 ReactQuill
-      const ReactQuill = require('react-quill');
-      setEditor(ReactQuill);
-    }
-  }, []);
-
-  // 渲染富文本编辑器
-  const renderEditor = () => {
-    if (editor) {
-      return (<ReactQuill
-        theme="snow"
-        value={formValues.answer} 
-        className={classNames("form-editor")}
-        onChange={(e: any) => onFormValuesChange("answer", e)}
-      />)
-    }
-    return <div>Editor is loading...</div>;
-  };
 
   return (
     <div className={classNames("addFaq")}>
@@ -273,7 +241,7 @@ const AddFaq = () => {
         <Form
           form={form}
           className={classNames("form")}
-          name="addKnowledge"
+          name="addFaq"
           layout="vertical"
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
@@ -297,7 +265,6 @@ const AddFaq = () => {
               treeDefaultExpandAll
               onChange={(e: any) => onFormValuesChange("category", e)}
               treeData={treeData}
-              onPopupScroll={onPopupScroll}
             />
           </Form.Item>
           <Form.Item
@@ -315,35 +282,41 @@ const AddFaq = () => {
               <Radio value={"CUSTOM"}>自定义</Radio>
             </Radio.Group>
           </Form.Item>
-          {formValues.effectiveType === "CUSTOM" && (
+          {formValues.effectiveBeginTime && (
             <Form.Item
               label="起始时间"
               name="effectiveBeginTime"
               rules={validateRules.effectiveBeginTime}
             >
               <DatePicker
-                // ... other props
+               value={formValues.effectiveBeginTime}
+               showTime={{ format: 'HH:mm:ss' }} // 显示时间选择器
+               format="YYYY-MM-DD HH:mm:ss" // 设置显示和解析的日期格式
+               onChange={(date, dateString) => onFormValuesChange("effectiveBeginTime", date)}
               />
             </Form.Item>
           )}
-          {formValues.effectiveType === "CUSTOM" && (
+          {formValues.effectiveType === 'CUSTOM' && (
             <Form.Item
               label="结束时间"
               name="effectiveEndTime"
               rules={validateRules.effectiveEndTime}
             >
-              <DatePicker
-                // ... other props
+              <DatePicker 
+                value={formValues.effectiveEndTime}
+                showTime={{ format: 'HH:mm:ss' }} // 显示时间选择器
+                format="YYYY-MM-DD HH:mm:ss" // 设置显示和解析的日期格式
+                onChange={(date, dateString) => onFormValuesChange("effectiveBeginTime", dayjs(date))}
               />
             </Form.Item>
           )}
           <Form.Item
             label="知识标签"
-            name="fdTag"
+            name="tagList"
             // rules={[{ required: true, message: '请选择知识标签' }]}
-            rules={validateRules.tagList}
+            // rules={validateRules.tagList}
           >
-            { tagList.map((tag: any) => {
+            { formValues?.tagList.map((tag: any) => {
               return (
                 <Tag 
                   key={tag.id} 
@@ -383,13 +356,12 @@ const AddFaq = () => {
             rules={validateRules.answer}
           >
             {/* 富文本编辑器 */}
-            {/* <ReactQuill
+            <ReactQuill
               theme="snow"
               value={formValues.answer} 
               className={classNames("form-editor")}
               onChange={(e: any) => onFormValuesChange("answer", e)}
-            /> */}
-            {renderEditor()}
+            />
           </Form.Item>
         </Form>
         <div 

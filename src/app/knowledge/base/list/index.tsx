@@ -90,7 +90,7 @@ const BaseList = () => {
   ]
 
   const handleRowClick = (record: any) => {
-    router.push(`#/knowledge/base/view?id=${record.id}`)
+    router.push(`/#/knowledge/base/view?id=${record.id}`)
     dispatch(setCurrentUrl('knowledge/base/view'))
   }
 

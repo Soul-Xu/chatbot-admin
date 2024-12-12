@@ -2,39 +2,39 @@
 import React, { useMemo, useEffect } from "react";
 import { Modal, Button } from "antd";
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteFaqTree } from "@/lib/features/slices/faqSlice";
-import { deleteTemplateTree } from "@/lib/features/slices/templateSlice";
+import { templateDelete } from "@/lib/features/slices/templateSlice";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
 
 interface Props {
-  nodeInfo: string
-  type: string;
+  id: string
   show: boolean;
   onClose: () => void;
   onOk: () => void; // 修改onOk函数类型
 }
 
-const DeleteClassify = (props: Props) => {
-  const { nodeInfo, show, onClose, onOk } = props;
+const DeleteTemplate = (props: Props) => {
+  const { id, show, onClose, onOk } = props;
   const dispatch = useDispatch()
 
   // 处理确认按钮点击事件
   const handleOk = async () => {
-    const isFaq = window.location.href.includes('faq')
-    try {
-      // @ts-ignore
-      isFaq ? dispatch(deleteFaqTree(nodeInfo.id)) : dispatch(deleteTemplateTree(nodeInfo.id))
-      onOk()
-    } catch (errorInfo) {
-      console.log('Validate Failed:', errorInfo);
+    if (id) {
+      try {
+        console.log('templateDelete', id)
+        // @ts-ignore
+        dispatch(templateDelete(id))
+        onOk()
+      } catch (errorInfo) {
+        console.log('Validate Failed:', errorInfo);
+      }
     }
   };
 
   const footer = useMemo(() => {
     return (
-      <div className={classNames("add-classify-footer")}>
+      <div className={classNames("delete-template-footer")}>
         <Button
           className={classNames("footer-cancel")}
           onClick={onClose}
@@ -55,19 +55,19 @@ const DeleteClassify = (props: Props) => {
   return (
     <Modal
       title={
-        <div className={classNames("add-classify-title")}>
+        <div className={classNames("delete-template-title")}>
           <span>删除分类</span>
         </div>
       }
       width={560}
       open={show}
       onCancel={onClose}
-      className={classNames("add-classify")}
+      className={classNames("delete-template")}
       footer={footer}
     >
-      <div className={classNames("add-classify-content")}>您确定要删除该节点吗？</div>
+      <div className={classNames("delete-template-content")}>您确定要删除该节点吗？</div>
     </Modal>
   );
 };
 
-export default DeleteClassify;
+export default DeleteTemplate;

@@ -176,6 +176,7 @@
       height: 32px;
       border-radius: 3px;
       border: 1px solid #DCDEE1;
+      box-sizing: border-box;
 
       span {
         height: 22px;
@@ -237,4 +238,9 @@
       }
     }
   }
+}
+
+.tag-container {
+  display: flex;
+  align-items: center;
 }

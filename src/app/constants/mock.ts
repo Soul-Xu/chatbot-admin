@@ -98,3 +98,21 @@ const treeData2 = [
 //     path: '行政之窗/规章制度',
 //   }
 // ]
+
+export const tagTreeData = [
+  {
+    key: 'ff9e361ead5b4da4b216fc92d028b939',
+    title: '行政之窗',
+    children: []
+  },
+  {
+    key: '03f8d6249e2f41f2af91d8aed8b9f069',
+    title: '员工关怀',
+    children: []
+  },
+  {
+    key: '70a99df1567443da946ef31e46b62d00',
+    title: '规章制度',
+    children: []
+  }
+]

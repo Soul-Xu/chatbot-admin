@@ -109,8 +109,6 @@ interface FaqUpdate {
   traceId: string;
 }
 
-// 定义update返回类型
-
 // faq树型结构列表
 export const getFaqTree = createAsyncThunk<FaqTree, void, { rejectValue: FetchFaqError }>(
   'getFaqTree',
@@ -263,8 +261,8 @@ const initialState = {
   faqUpdate: null,
   status: '',
   error: null as FetchFaqError | null,
-  nodePaths: [], // 存储树形结构对应的所有路径
-  selectedNode: null, // 存储当前选中的节点
+  nodeFaqPaths: [], // 存储树形结构对应的所有路径
+  selectedFaqNode: null, // 存储当前选中的节点
 }
 
 export const faqSlice = createSlice({
@@ -274,28 +272,19 @@ export const faqSlice = createSlice({
   reducers: {
     // 这里可以添加一些同步的reducers
     saveFaqNodePaths: (state, action) => {
-      state.nodePaths = action.payload; // 更新节点路径的状态
+      state.nodeFaqPaths = action.payload; // 更新节点路径的状态
     },
     selectFaqNode: (state, action) => {
-      state.selectedNode = action.payload; // 更新选中节点的状态
+      state.selectedFaqNode = action.payload; // 更新选中节点的状态
     },
   },
   // 定义异步的reducers
   extraReducers: (builder) => {
     builder
-      .addCase(getFaqTree.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
       .addCase(getFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
         // @ts-ignore
         state.faqTree = action?.payload?.data; // 使用返回的数据中的data字段
-      })
-      .addCase(getFaqTree.rejected, (state, action) => {
-        state.status = 'failed';
-        // 确保这里的 action.error 是正确的类型
-        state.error = action.payload as FetchFaqError;
       })
       .addCase(addFaqTree.fulfilled, (state, action) => {
         state.status = 'succeeded';

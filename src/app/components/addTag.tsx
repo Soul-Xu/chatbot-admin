@@ -14,7 +14,7 @@ interface Props {
   selectTags: any[];
   show: boolean;
   onClose: () => void;
-  onOk: (params: any) => void;
+  onOk: (list: any, ids: any) => void;
 }
 interface TreeTransferProps {
   dataSource: TreeDataNode[];
@@ -64,7 +64,6 @@ const TreeTransfer: React.FC<TreeTransferProps> = ({
       dataSource={transferDataSource}
       showSearch
       onSearch={handleSearch}
-      // onChange={handleChange}
       className="tree-transfer"
       render={(item) => item.title!}
       showSelectAll={false}
@@ -96,45 +95,64 @@ const TreeTransfer: React.FC<TreeTransferProps> = ({
   );
 };
 
-const treeData: TreeDataNode[] = [
-  { key: '0-0', title: '0-0' },
-  {
-    key: '0-1',
-    title: '0-1',
-    children: [
-      { key: '0-1-0', title: '0-1-0' },
-      { key: '0-1-1', title: '0-1-1' },
-    ],
-  },
-  { key: '0-2', title: '0-2' },
-  { key: '0-3', title: '0-3' },
-  { key: '0-4', title: '0-4' },
-]
-
 const AddTag = (props: Props) => {
   const { selectTags, show, onClose, onOk } = props
   const dispatch = useDispatch()
   const { tagTree } = useSelector((state: any) => state.tag)
+  const [treeData, setTreeData] = useState<any>([])
+  const [targetNodeList, setTargetNodeList] = useState([]); // 保存选中的节点列表
   const [targetKeys, setTargetKeys] = useState<TreeTransferProps['targetKeys']>([])
+
+  const findObjectsByKeys = (data:any, keys:any) => {
+    return data.reduce((acc:any, item:any) => {
+    if (keys.includes(item.key)) {
+      acc.push(item);
+    }
+    // Check children keys
+    item.children.forEach((child:any) => {
+      if (keys.includes(child.key)) {
+        acc.push(child);
+      }
+    });
+    return acc;
+    }, []);
+  }
+
   const onChange: TreeTransferProps['onChange'] = (keys) => {
-    console.log('targetKeys: ', keys);
+    const targetNodes = findObjectsByKeys(treeData, keys);
+    setTargetNodeList(targetNodes)
     setTargetKeys(keys)
+  }
+
+  const convertToTreeData = (data: any) => {
+    return data.map((item: any) => {
+      const node = {
+        key: item.id,
+        title: item.name,
+        children: item.children ? convertToTreeData(item.children) : undefined,
+      };
+      return node;
+    });
   }
 
   // 根据selectTags初始化targetKeys
   useEffect(() => {
-    console.log('selectTags', selectTags)
     const keys = selectTags.map(tag => tag.id.toString());
     setTargetKeys(keys);
   }, [selectTags]);
 
   useEffect(() => {
-    const params = {
-      parentId: '',
-      name: ''
+    if (Array.isArray(tagTree) && tagTree.length > 0) {
+      const treeData = convertToTreeData(tagTree)
+      setTreeData(treeData)
+    } else {
+      const params = {
+        parentId: '',
+        name: ''
+      }
+      // @ts-ignore
+      dispatch(getTagTree(params))
     }
-    // @ts-ignore
-    dispatch(getTagTree(params))
   }, [tagTree])
 
   const footer = useMemo(() => {
@@ -150,8 +168,7 @@ const AddTag = (props: Props) => {
           type='primary'
           className={classNames("footer-ok")}
           onClick={() => {
-            console.log('ok', targetKeys)
-            onOk(targetKeys); // 将选中的标签传递给父组件
+            onOk(targetNodeList, targetKeys); // 将选中的标签传递给父组件
             onClose();
           }}
         >
@@ -181,6 +198,7 @@ const AddTag = (props: Props) => {
           <span>已选择标签</span>
         </div>
         <div className={classNames("content-main")}>
+          {/* @ts-ignore */}
           <TreeTransfer dataSource={treeData} targetKeys={targetKeys} onChange={onChange} />
         </div>
       </div>

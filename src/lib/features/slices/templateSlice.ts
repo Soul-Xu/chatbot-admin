@@ -92,6 +92,33 @@ interface TemplateDetail {
   };
 }
 
+// 定义add返回类型
+interface TemplateAdd {
+  code: number;
+  msg: string;
+  data: boolean;
+  success: boolean;
+  traceId: string;
+}
+
+// 定义update返回类型
+interface TemplateUpdate {
+  code: number;
+  msg: string;
+  data: boolean;
+  success: boolean;
+  traceId: string;
+}
+
+// 定义delete返回类型
+interface TemplateDelete {
+  code: number;
+  msg: string;
+  data: boolean;
+  success: boolean;
+  traceId: string;
+}
+
 // 定义错误类型
 interface FetchTemplateError {
   message: string;
@@ -102,7 +129,7 @@ export const getTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValu
   'getTemplateTree',
   async (params, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/tag-cate/tree', params, {
+      const response = await axiosClient.post('/review-tmpl-cate/tree', params, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -120,7 +147,7 @@ export const addTemplateTree = createAsyncThunk<TemplateTree, void, { rejectValu
   'addTemplateTree',
   async (params, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/tag-cate/add', params, {
+      const response = await axiosClient.post('/review-tmpl-cate/add', params, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -138,7 +165,7 @@ export const updateTemplateTree = createAsyncThunk<TemplateTree, void, { rejectV
   'updateTemplateTree',
   async (params, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/tag-cate/update', params, {
+      const response = await axiosClient.post('/review-tmpl-cate/update', params, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -156,7 +183,7 @@ export const deleteTemplateTree = createAsyncThunk<TemplateTree, void, { rejectV
   'deleteTemplateTree',
   async (params, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/tag-cate/delete', params, {
+      const response = await axiosClient.get(`/review-tmpl-cate/delete/${params}`,  {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -201,17 +228,70 @@ export const getTemplateDetail = createAsyncThunk<TemplateDetail, void, { reject
   }
 )
 
+// template新增
+export const templateAdd= createAsyncThunk<TemplateAdd, void, { rejectValue: FetchTemplateError }>(
+  'templateAdd',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/review-tmpl/add', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+)
+
+// template编辑
+export const templateUpdate = createAsyncThunk<TemplateUpdate, void, { rejectValue: FetchTemplateError }>(
+  'templateUpdate',
+  async (params, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.post('/review-tmpl/update', params, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+)
+
+// template删除
+export const templateDelete = createAsyncThunk<TemplateDelete, void, { rejectValue: FetchTemplateError }>(
+  'templateDelete',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.get(`/review-tmpl/delete/${id}`);
+      return response.data;
+    } catch (error: any) {
+      // 使用 rejectWithValue 来返回错误信息
+      return rejectWithValue({ message: error.response.data });
+    }
+  }
+)
+
 const initialState = {
   templateTree: [],
-  templateTreeAdd: {},
-  templateTreeUpdate: {},
-  templateTreeDelete: {},
-  templateUpdate: {},
-  templateList: {},
-  templateDetail: {},
+  templateTreeAdd: null,
+  templateTreeUpdate: null,
+  templateTreeDelete: null,
+  templateList: null,
+  templateDetail: null,
+  templateAdd: null,
+  templateUpdate: null,
+  templateDelete: null,
   status: '',
   error: null as FetchTemplateError | null,
-  selectedNode: null // 新增状态来存储选中的节点信息
+  nodeTemplatePaths: [], // 存储树形结构对应的所有路径
+  selectedTemplateNode: null, // 存储当前选中的节点
 }
 
 export const templateSlice = createSlice({
@@ -220,41 +300,64 @@ export const templateSlice = createSlice({
   // 定义同步的reducers
   reducers: {
     // 这里可以添加一些同步的reducers
+    saveTemplateNodePaths: (state, action) => {
+      state.nodeTemplatePaths = action.payload; // 更新节点路径的状态
+    },
     selectTemplateNode: (state, action) => {
-      console.log('selectFaqNode action:',  action)
-      state.selectedNode = action.payload; // 更新选中节点的状态
+      state.selectedTemplateNode = action.payload; // 更新选中节点的状态
     },
   },
   // 定义异步的reducers
   extraReducers: (builder) => {
     builder
-      .addCase(getTemplateTree.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
+      .addCase(getTemplateTree.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // @ts-ignore
+        state.templateTree = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(addTemplateTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.templateTreeAdd = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(updateTemplateTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.templateTreeUpdate = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(deleteTemplateTree.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.templateTreeDelete = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getTemplateList.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.templateList = action?.payload?.data; // 使用返回的数据中的data字段
       })
       .addCase(getTemplateDetail.fulfilled, (state, action) => {
         state.status = 'succeeded';
+        // @ts-ignore
         state.templateDetail = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(templateAdd.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // @ts-ignore
+        state.templateAdd = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(templateUpdate.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // @ts-ignore
+        state.templateUpdate = action?.payload?.data; // 使用返回的数据中的data字段
+      })
+      .addCase(templateDelete.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // @ts-ignore
+        state.templateDelete = action?.payload?.data; // 使用返回的数据中的data字段
       })
   },
 });
 
-export const { selectTemplateNode } = templateSlice.actions; // 导出 selectFaqNode action
+export const { saveTemplateNodePaths, selectTemplateNode } = templateSlice.actions; // 导出 selectFaqNode action
 
 export default templateSlice.reducer;

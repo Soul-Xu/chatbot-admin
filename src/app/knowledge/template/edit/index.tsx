@@ -1,7 +1,7 @@
 
 import React from "react"
 import Container from "../../../components/container";
-import AddTemplate from "../add/page";
+import AddTemplate from "../add";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);

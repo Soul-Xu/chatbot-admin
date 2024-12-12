@@ -76,10 +76,13 @@
     }
 
     &-detail {
+      width: 100%;
       display: flex;
+      justify-content: space-between;
       border-top: 1px solid #DCDEE1;
 
       .content-detail-text {
+        display: flex;
         padding: 12px;
         width: calc(100% - 216px);
         height: calc(100vh - 208px);

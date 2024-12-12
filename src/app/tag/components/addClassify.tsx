@@ -2,8 +2,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Modal, Button, Form, Input, InputNumber } from "antd";
 import { useDispatch, useSelector } from 'react-redux';
-import { addFaqTree, updateFaqTree } from "@/lib/features/slices/faqSlice";
-import { addTemplateTree, updateTemplateTree } from "@/lib/features/slices/templateSlice";
+import { addTagTree, updateTagTree } from "@/lib/features/slices/tagSlice";
 import classnames from "classnames/bind";
 import styles from "./index.module.scss";
 const classNames = classnames.bind(styles);
@@ -53,24 +52,26 @@ const AddClassify = (props: Props) => {
 
   // 处理确认按钮点击事件
   const handleOk = async () => {
+    console.log('handleOk', nodeInfo)
     try {
       const values = await form.validateFields();
       const params = {
         name: values.name,
-        sort: values.sort,
-        parentId: nodeInfo?.parentId || ''
+        // sort: values.sort,
+        parentId: nodeInfo?.parentId || null,
+        // tagType: ''
       }
-      const isFaq = window.location.href.includes('faq')
+      console.log('1111-params', params)
       if (type === 'add') {
         // @ts-ignore
-        isFaq ? dispatch(addFaqTree(params)) : dispatch(addTemplateTree(params))
+        dispatch(addTagTree(params))
       } else {
         const query = {
           id: nodeInfo?.id,
           ...params
         }
         // @ts-ignore
-        isFaq ? dispatch(updateFaqTree(query)) : dispatch(updateTemplateTree(query))
+        dispatch(updateTagTree(query))
       }
       setFormValues(initFormValues)
       onOk()
@@ -81,7 +82,7 @@ const AddClassify = (props: Props) => {
 
   useEffect(() => {
     const name = nodeInfo?.path.split('/').pop()
-    if (nodeInfo) {
+    if (type !== 'add' && nodeInfo) {
       form.setFieldsValue({
         name,
         sort: nodeInfo.level
